@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: zone-2-be
