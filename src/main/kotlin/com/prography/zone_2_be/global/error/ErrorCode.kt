@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 
 enum class ErrorCode(
     val status: HttpStatus,
-    val errorCode: Int,
+    val code: Int,
     val message: String
 ) {
     //global 에러
