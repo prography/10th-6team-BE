@@ -1,5 +1,6 @@
 package com.prography.zone_2_be.global.health
 
+import com.prography.zone_2_be.global.response.ApiResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -10,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 class HealthCheckController {
 
     @GetMapping("/health")
-    fun health(): ResponseEntity<String> =
-        ResponseEntity.ok("OK");
+    fun health(): ResponseEntity<ApiResponse<Void>> =
+        ApiResponse.success();
 }
