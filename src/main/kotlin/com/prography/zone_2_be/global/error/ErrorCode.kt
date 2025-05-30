@@ -10,7 +10,7 @@ enum class ErrorCode(
     //global 에러
     DEFAULT_ERROR(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        4000,
-        "현재 앱에 문제가 발생했으니 관리자에게 문의해주세요."
+        5000,
+        "서버에서 알 수 없는 오류 발생"
     ),
 }
