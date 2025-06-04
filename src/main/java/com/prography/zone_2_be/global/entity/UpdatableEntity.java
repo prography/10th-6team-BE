@@ -1,7 +1,5 @@
 package com.prography.zone_2_be.global.entity;
 
-import java.time.Instant;
-
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.prography.zone_2_be.global.converter.InstantToEpochSecondConverter;
@@ -18,5 +16,5 @@ public abstract class UpdatableEntity extends BaseEntity {
 	@LastModifiedDate
 	@Column(nullable = false, columnDefinition = "BIGINT")
 	@Convert(converter = InstantToEpochSecondConverter.class)
-	private Instant updatedAt;
+	private Long updatedAt;
 }
