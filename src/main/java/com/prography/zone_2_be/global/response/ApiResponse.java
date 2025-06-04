@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class ApiResponse<T> {
 
 	@Builder.Default
-	private final long timestamp = Instant.now().toEpochMilli();
+	private final long timestamp = Instant.now().getEpochSecond();
 	private final int code;
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
