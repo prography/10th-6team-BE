@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.prography.zone_2_be.domain.notice.dto.NoticeResponseDto;
+import com.prography.zone_2_be.domain.notice.dto.NoticeFindAllResponse;
 import com.prography.zone_2_be.domain.notice.service.NoticeService;
 import com.prography.zone_2_be.global.constant.CommonConst;
 import com.prography.zone_2_be.global.response.ApiResponse;
@@ -24,10 +24,10 @@ public class NoticeController {
 	private final NoticeService noticeService;
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<SliceResponse<NoticeResponseDto>>> findAllNotice(
+	public ResponseEntity<ApiResponse<SliceResponse<NoticeFindAllResponse>>> findAllNotice(
 		@RequestParam(defaultValue = "0") int pageNumber) {
 		Pageable pageable = PageRequest.of(pageNumber, CommonConst.DEFAULT_PAGE_SIZE);
-		SliceResponse<NoticeResponseDto> response = noticeService.findAllNotice(pageable);
+		SliceResponse<NoticeFindAllResponse> response = noticeService.findAllNotice(pageable);
 
 		return ApiResponse.success(response);
 	}

@@ -8,21 +8,21 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class NoticeResponseDto {
+public class NoticeFindAllResponse {
 
 	private Long id;
 	private String title;
 	private Long createdAt;
 
 	@Builder
-	private NoticeResponseDto(Long id, String title, Long createdAt) {
+	private NoticeFindAllResponse(Long id, String title, Long createdAt) {
 		this.id = id;
 		this.title = title;
 		this.createdAt = createdAt;
 	}
 
-	public static NoticeResponseDto from(Notice notice) {
-		return NoticeResponseDto.builder()
+	public static NoticeFindAllResponse from(Notice notice) {
+		return NoticeFindAllResponse.builder()
 			.id(notice.getId())
 			.title(notice.getTitle())
 			.createdAt(notice.getCreatedAt())
