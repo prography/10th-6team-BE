@@ -4,7 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import com.prography.zone_2_be.domain.notice.dto.NoticeResponseDto;
+import com.prography.zone_2_be.domain.notice.dto.NoticeFindAllResponse;
 import com.prography.zone_2_be.domain.notice.repository.NoticeRepository;
 import com.prography.zone_2_be.global.response.SliceResponse;
 
@@ -16,9 +16,9 @@ public class NoticeService {
 
 	private final NoticeRepository noticeRepository;
 
-	public SliceResponse<NoticeResponseDto> findAllNotice(Pageable pageable) {
-		Slice<NoticeResponseDto> noticeResponse = noticeRepository.findAllByOrderByCreatedAtDesc(pageable)
-			.map(NoticeResponseDto::from);
+	public SliceResponse<NoticeFindAllResponse> findAllNotice(Pageable pageable) {
+		Slice<NoticeFindAllResponse> noticeResponse = noticeRepository.findAllByOrderByCreatedAtDesc(pageable)
+			.map(NoticeFindAllResponse::from);
 		return SliceResponse.from(noticeResponse);
 	}
 }
