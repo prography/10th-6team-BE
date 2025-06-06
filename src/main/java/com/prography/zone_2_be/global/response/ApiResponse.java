@@ -50,4 +50,14 @@ public class ApiResponse<T> {
 		return ResponseEntity.status(errorCode.getStatus())
 			.body(body);
 	}
+
+	public static ResponseEntity<ApiResponse<Void>> error(ErrorCode errorCode,String message) {
+		ApiResponse<Void> body = ApiResponse.<Void>builder()
+				.code(errorCode.getCode())
+				.message(errorCode.getMessage() + " " + message)
+				.build();
+
+		return ResponseEntity.status(errorCode.getStatus())
+				.body(body);
+	}
 }
