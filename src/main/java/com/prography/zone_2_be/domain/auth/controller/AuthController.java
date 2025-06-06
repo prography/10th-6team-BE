@@ -23,7 +23,6 @@ public class AuthController {
 
     @PostMapping("")
     public ResponseEntity<AuthResponseDto> Auth(@Valid @RequestBody AuthRequestDto request) {
-        String token = this.authService.createAccessToken(request);
-        return ResponseEntity.status(HttpStatus.OK).body(new AuthResponseDto(token));
+        return ResponseEntity.status(HttpStatus.OK).body(authService.authorize(request));
     }
 }
