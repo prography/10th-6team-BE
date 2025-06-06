@@ -4,10 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
 public class AuthRequestDto {
-    @NotNull
+    @NotNull(message = "OAuth2 키는 필수 입력값입니다.")
     public String oAuth2Key;
 
-    @NotNull
+    @NotNull(message = "이메일은 필수 입력값입니다.")
     @Email
     public String email;
 }
