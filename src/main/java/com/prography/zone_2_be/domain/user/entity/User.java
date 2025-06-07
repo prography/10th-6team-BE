@@ -32,6 +32,11 @@ public class User extends BaseEntity implements UserDetails {
     @Setter
     private int weight;
 
+    @Column
+    @Setter
+    @Enumerated(EnumType.ORDINAL)
+    private Gender gender;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
