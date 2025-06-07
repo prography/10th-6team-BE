@@ -1,7 +1,7 @@
 package com.prography.zone_2_be.domain.auth.controller;
 
-import com.prography.zone_2_be.domain.auth.dto.AuthRequestDto;
-import com.prography.zone_2_be.domain.auth.dto.AuthResponseDto;
+import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
+import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
 import com.prography.zone_2_be.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("")
-    public ResponseEntity<AuthResponseDto> Auth(@Valid @RequestBody AuthRequestDto request) {
+    public ResponseEntity<UserAuthResponse> authUser(@Valid @RequestBody UserAuthRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.authorize(request));
     }
 }
