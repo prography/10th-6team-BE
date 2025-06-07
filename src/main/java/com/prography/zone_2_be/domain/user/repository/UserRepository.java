@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByoAuth2Key(String oAuth2Key);
-    boolean existsByoAuth2Key(String oAuth2Key);
+    Optional<User> findByOauth2Key(String Oauth2Key);
+    boolean existsByOauth2Key(String oAuth2Key);
+
 }

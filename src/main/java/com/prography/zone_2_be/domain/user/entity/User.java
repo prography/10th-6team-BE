@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class User extends BaseEntity {
     @Column(nullable = false, updatable = false)
-    private String oAuth2Key;
+    private String oauth2Key;
 
     @Column(nullable = false)
     private String email;
