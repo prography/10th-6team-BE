@@ -18,8 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @Slf4j
 class SecurityConfiguration {
-    private final JwtUtil jwtUtil;
-    private final UserService userService;
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,7 +28,7 @@ class SecurityConfiguration {
                         requestMatchers("/api/v1/health", "/api/v1/auth").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(
-                        new JwtAuthFilter(jwtUtil, userService),
+                        jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
         log.info("SecurityFilterChain Bean CREATED!");

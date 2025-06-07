@@ -5,6 +5,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -61,5 +62,9 @@ public class JwtUtil {
             log.info("JWT claims string is empty.", e);
         }
         return false;
+    }
+
+    public static String getOAuth2Key(){
+        return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
