@@ -16,13 +16,13 @@ public class AuthService {
     private final UserRepository userRepository;
 
     private String createAccessToken(UserAuthRequest dto) {
-        return jwtUtil.generateJwtToken(dto.oAuth2Key);
+        return jwtUtil.generateJwtToken(dto.oauth2Key);
     }
 
     public UserAuthResponse authorize(UserAuthRequest request) {
-        boolean isNew = !userRepository.existsByoAuth2Key(request.oAuth2Key);
+        boolean isNew = !userRepository.existsByOauth2Key(request.oauth2Key);
         if (isNew){
-            userRepository.save(User.forRegister(request.oAuth2Key, request.email));
+            userRepository.save(User.forRegister(request.oauth2Key, request.email));
         }
 
         String token = this.createAccessToken(request);
