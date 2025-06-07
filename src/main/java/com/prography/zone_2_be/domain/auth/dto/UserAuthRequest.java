@@ -3,7 +3,7 @@ package com.prography.zone_2_be.domain.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
-public class AuthRequestDto {
+public class UserAuthRequest {
     @NotNull(message = "OAuth2 키는 필수 입력값입니다.")
     public String oAuth2Key;
 
