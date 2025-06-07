@@ -13,6 +13,7 @@ public class AuthenticationToken extends AbstractAuthenticationToken {
         super(authorities); // 이후 custom한 authority 클래스 사용
         this.principal = principal;
         this.credential = credential;
+        super.setAuthenticated(true);
     }
 
     @Override
