@@ -40,9 +40,9 @@ public class JwtAuthFilter extends OncePerRequestFilter { // OncePerRequestFilte
             try {
                 String oAuth2Key = jwtUtil.getOAuth2Key(token);
 
-                UserDetails user = userService.findUserByOAuth2Key(oAuth2Key);
+                User user = userService.findUserByOAuth2Key(oAuth2Key);
                 AuthenticationToken authenticationToken =
-                        new AuthenticationToken(user, null, user.getAuthorities());
+                        new AuthenticationToken(user.getOauth2Key(), null, user.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 log.info("JwtAuthFilter: Successfully authenticated user '{}'", user.getUsername()); //getUsername()이 있다고 가정
