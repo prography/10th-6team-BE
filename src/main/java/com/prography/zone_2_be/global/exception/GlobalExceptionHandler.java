@@ -1,6 +1,7 @@
 package com.prography.zone_2_be.global.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
 		return ApiResponse.error(ErrorCode.DEFAULT_ERROR);
 	}
 
-	@ExceptionHandler({MethodArgumentNotValidException.class})
+	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Void>> handleRequestParamException(
 			MethodArgumentNotValidException ex) {
 
@@ -39,7 +40,15 @@ public class GlobalExceptionHandler {
 		String errorMessage = errors.stream()
 				.map(ObjectError::getDefaultMessage)
 				.collect(Collectors.joining(", "));
-
+		log.error("MethodArgumentNotValidException: {}", ex.getMessage(), ex);
 		return ApiResponse.error(ErrorCode.INVALID_REQUEST_PARAM, errorMessage);
+	}
+
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAuthorizationDeniedException(
+			AuthorizationDeniedException ex) {
+
+		log.error("AuthorizationDeniedException: {}", ex.getMessage(), ex);
+		return ApiResponse.error(ErrorCode.ACCESS_DENIED);
 	}
 }
