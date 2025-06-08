@@ -2,6 +2,7 @@ package com.prography.zone_2_be.global.config;
 
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.service.UserService;
+import com.prography.zone_2_be.global.exception.SecurityAuthenticationEntryPoint;
 import com.prography.zone_2_be.global.utils.AuthenticationToken;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -10,9 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,6 +24,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter { // OncePerRequestFilter -> 한 번 실행 보장
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final SecurityAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

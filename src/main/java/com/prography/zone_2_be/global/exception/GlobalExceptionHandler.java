@@ -51,6 +51,6 @@ public class GlobalExceptionHandler {
 			AuthorizationDeniedException ex) {
 
 		log.error("Auth Exception: {}", ex.getMessage(), ex);
-		return ApiResponse.error(ErrorCode.ACCESS_DENIED);
+		return ApiResponse.error(ErrorCode.FORBIDDEN);
 	}
 }

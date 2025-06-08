@@ -32,7 +32,6 @@ public class AuthService {
     }
 
     public UserAuthResponse authorize(UserAuthRequest request) {
-
         Optional<User> optionalUser = userRepository.findByOauth2Key(request.oauth2Key);
         boolean isNew = optionalUser.isEmpty(); // Optional이 비어있으면 새로운 사용자
 
