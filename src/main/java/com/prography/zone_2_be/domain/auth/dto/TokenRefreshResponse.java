@@ -1,14 +1,12 @@
 package com.prography.zone_2_be.domain.auth.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-@Getter
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
 @Builder
-public class UserAuthResponse {
+@AllArgsConstructor
+public class TokenRefreshResponse {
     private final String accessToken;
     private final String refreshToken;
-    private final boolean isNew;
 }

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,6 +17,10 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false, updatable = false)
     @Getter
     private String oauth2Key;
+
+    @Column(nullable = false, updatable = false)
+    @Getter
+    private String uuid;
 
     @Column(nullable = false)
     private String email;
@@ -63,19 +68,26 @@ public class User extends BaseEntity implements UserDetails {
     public boolean isAccountNonExpired() { return true; }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 
     @Builder
-    public User (String oauth2Key, String email, Role role){
+    public User (String oauth2Key, String uuid, String email, Role role){
         this.oauth2Key = oauth2Key;
         this.email = email;
-        this.role = role; // Default role is User
+        this.role = role;// Default role is User
+        this.uuid = uuid;
     }
 
     public static User forRegister(String oauth2Key, String email) {
@@ -83,6 +95,7 @@ public class User extends BaseEntity implements UserDetails {
                 .oauth2Key(oauth2Key)
                 .email(email)
                 .role(Role.User) // Default role is User
+                .uuid(UUID.randomUUID().toString())
                 .build();
     }
 }

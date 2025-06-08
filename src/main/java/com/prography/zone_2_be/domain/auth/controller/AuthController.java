@@ -1,5 +1,7 @@
 package com.prography.zone_2_be.domain.auth.controller;
 
+import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
+import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
 import com.prography.zone_2_be.domain.auth.service.AuthService;
@@ -24,5 +26,10 @@ public class AuthController {
     @PostMapping("")
     public ResponseEntity<UserAuthResponse> authUser(@Valid @RequestBody UserAuthRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.authorize(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody TokenRefreshRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.refreshToken(request));
     }
 }
