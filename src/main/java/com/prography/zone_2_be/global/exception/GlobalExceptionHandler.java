@@ -1,5 +1,6 @@
 package com.prography.zone_2_be.global.exception;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.ObjectError;
@@ -44,11 +45,12 @@ public class GlobalExceptionHandler {
 		return ApiResponse.error(ErrorCode.INVALID_REQUEST_PARAM, errorMessage);
 	}
 
-	@ExceptionHandler(AuthorizationDeniedException.class)
-	public ResponseEntity<ApiResponse<Void>> handleAuthorizationDeniedException(
+
+	@ExceptionHandler({AuthorizationDeniedException.class, JwtException.class})
+	public ResponseEntity<ApiResponse<Void>> handleAuthException(
 			AuthorizationDeniedException ex) {
 
-		log.error("AuthorizationDeniedException: {}", ex.getMessage(), ex);
+		log.error("Auth Exception: {}", ex.getMessage(), ex);
 		return ApiResponse.error(ErrorCode.ACCESS_DENIED);
 	}
 }

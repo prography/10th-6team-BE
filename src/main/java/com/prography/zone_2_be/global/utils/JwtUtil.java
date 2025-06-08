@@ -26,8 +26,9 @@ public class JwtUtil {
         this.jwtExpirationMs = jwtExpirationMs;
     }
 
-    public String generateJwtToken(String oauth2Key) {
+    public String generateAccessToken(String oauth2Key, String uuid) {
         return Jwts.builder()
+                .id(uuid)
                 .subject(oauth2Key)
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
@@ -35,9 +36,18 @@ public class JwtUtil {
                 .compact();
     }
 
-//    public String refreshToken(String refreshToken) {
-//
-//    }
+    public String generateRefreshToken(String uuid) {
+        return Jwts.builder()
+                .id(uuid)
+                .issuedAt(new Date())
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key)
+                .compact();
+    }
+
+    public String getUuid(String token) {
+        return parseClaims(token).getId();
+    }
 
 
     public String getOAuth2Key(String token) {
