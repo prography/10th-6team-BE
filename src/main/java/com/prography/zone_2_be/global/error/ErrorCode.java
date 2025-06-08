@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorCode {
 	// Common Client Error 1000번대
 	INVALID_REQUEST_PARAM(HttpStatus.BAD_REQUEST, 1000, "올바르지 않은 요청 파라미터 입니다."),
-	ACCESS_DENIED(HttpStatus.FORBIDDEN, 1001, "접근 권한이 없습니다."),
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 1001, "인증에 실패했습니다."),
+	FORBIDDEN(HttpStatus.FORBIDDEN, 1003, "접근 권한이 없습니다."),
 
 	// User 에러 4000번대
 	USER_NOT_FOUND(HttpStatus.BAD_REQUEST, 4000, "해당 유저를 찾을 수 없습니다."),
