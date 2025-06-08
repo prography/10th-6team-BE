@@ -74,7 +74,8 @@ public class JwtUtil {
         return false;
     }
 
-    public static String getOAuth2Key(){
+    public static String getUuid(){
         return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+
 }

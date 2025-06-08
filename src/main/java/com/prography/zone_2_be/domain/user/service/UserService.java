@@ -1,5 +1,6 @@
 package com.prography.zone_2_be.domain.user.service;
 
+import com.prography.zone_2_be.domain.user.dto.UserFindResponse;
 import com.prography.zone_2_be.domain.user.dto.UserUpdateRequest;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
@@ -17,15 +18,21 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public User findUserByOAuth2Key(String oauth2Key) throws UserNotFoundException {
-        return userRepository.findByOauth2Key(oauth2Key).orElseThrow(UserNotFoundException::new);
+    public User findUserByUuid(String uuid) throws UserNotFoundException {
+        return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
+    }
+
+
+    public UserFindResponse findUser(){
+        return UserFindResponse.from(userRepository.findByUuid(JwtUtil.getUuid()).orElseThrow(UserNotFoundException::new));
     }
 
     @Transactional
     public void updateUser(UserUpdateRequest dto){
-        String oauth2Key = JwtUtil.getOAuth2Key();
-        User user = userRepository.findByOauth2Key(oauth2Key).orElseThrow(UserNotFoundException::new);
+        String uuid = JwtUtil.getUuid();
+        User user = userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
 
         user.setWeight(dto.weight);
         user.setHeight(dto.height);

@@ -13,13 +13,12 @@ import java.util.UUID;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false, updatable = false)
-    @Getter
     private String oauth2Key;
 
     @Column(nullable = false, updatable = false)
-    @Getter
     private String uuid;
 
     @Column(nullable = false)
