@@ -22,7 +22,7 @@ public class TermController {
 
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<TermFindAllResponse>>> findAllTerm() {
-		List<TermFindAllResponse> terms = termService.getTerms();
+		List<TermFindAllResponse> terms = termService.findAllTerm();
 		return ApiResponse.success(terms);
 	}
 }
