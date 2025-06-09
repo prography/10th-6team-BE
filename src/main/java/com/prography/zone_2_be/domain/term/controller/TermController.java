@@ -21,7 +21,7 @@ public class TermController {
 	private final TermService termService;
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<List<TermFindAllResponse>>> TermController() {
+	public ResponseEntity<ApiResponse<List<TermFindAllResponse>>> findAllTerm() {
 		List<TermFindAllResponse> terms = termService.getTerms();
 		return ApiResponse.success(terms);
 	}
