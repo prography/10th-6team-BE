@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.prography.zone_2_be.domain.term.dto.TermResponse;
+import com.prography.zone_2_be.domain.term.dto.TermFindAllResponse;
 import com.prography.zone_2_be.domain.term.repository.TermRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -15,10 +15,10 @@ public class TermService {
 
 	private final TermRepository termRepository;
 
-	public List<TermResponse> getTerms() {
+	public List<TermFindAllResponse> getTerms() {
 		return termRepository.getTerms()
 			.stream()
-			.map(TermResponse::from)
+			.map(TermFindAllResponse::from)
 			.toList();
 	}
 }
