@@ -1,7 +1,7 @@
-package com.prography.zone_2_be.domain.terms.dto;
+package com.prography.zone_2_be.domain.term.dto;
 
-import com.prography.zone_2_be.domain.terms.entity.Term;
-import com.prography.zone_2_be.domain.terms.entity.TermType;
+import com.prography.zone_2_be.domain.term.entity.Term;
+import com.prography.zone_2_be.domain.term.entity.TermType;
 
 import lombok.AccessLevel;
 import lombok.Builder;
