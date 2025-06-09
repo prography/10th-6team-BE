@@ -1,4 +1,4 @@
-package com.prography.zone_2_be.domain.terms.controller;
+package com.prography.zone_2_be.domain.term.controller;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.prography.zone_2_be.domain.terms.dto.TermResponse;
-import com.prography.zone_2_be.domain.terms.service.TermService;
+import com.prography.zone_2_be.domain.term.dto.TermResponse;
+import com.prography.zone_2_be.domain.term.service.TermService;
 import com.prography.zone_2_be.global.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
