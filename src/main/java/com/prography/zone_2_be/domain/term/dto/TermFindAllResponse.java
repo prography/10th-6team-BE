@@ -12,12 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TermFindAllResponse {
 
+	private Long id;
 	private String content;
 	private TermType termType;
 	private Long createdAt;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private TermFindAllResponse(String content, TermType termType, Long createdAt) {
+	private TermFindAllResponse(Long id, String content, TermType termType, Long createdAt) {
+		this.id = id;
 		this.content = content;
 		this.termType = termType;
 		this.createdAt = createdAt;
@@ -25,6 +27,7 @@ public class TermFindAllResponse {
 
 	public static TermFindAllResponse from(Term term) {
 		return TermFindAllResponse.builder()
+			.id(term.getId())
 			.content(term.getContent())
 			.termType(term.getTermType())
 			.createdAt(term.getCreatedAt())
