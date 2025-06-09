@@ -15,8 +15,8 @@ public class TermService {
 
 	private final TermRepository termRepository;
 
-	public List<TermFindAllResponse> getTerms() {
-		return termRepository.getTerms()
+	public List<TermFindAllResponse> findAllTerm() {
+		return termRepository.findLatestTermsGroupedByType()
 			.stream()
 			.map(TermFindAllResponse::from)
 			.toList();
