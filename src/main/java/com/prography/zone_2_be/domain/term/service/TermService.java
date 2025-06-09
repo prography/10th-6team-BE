@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.term.dto.TermFindAllResponse;
 import com.prography.zone_2_be.domain.term.dto.TermFindAllVersionResponse;
+import com.prography.zone_2_be.domain.term.dto.TermFindResponse;
+import com.prography.zone_2_be.domain.term.entity.Term;
 import com.prography.zone_2_be.domain.term.entity.TermType;
 import com.prography.zone_2_be.domain.term.repository.TermRepository;
 
@@ -29,5 +31,10 @@ public class TermService {
 			.stream()
 			.map(TermFindAllVersionResponse::from)
 			.toList();
+	}
+
+	public TermFindResponse findTerm(Long termId) {
+		Term term = termRepository.findByIdOrThrow(termId);
+		return TermFindResponse.from(term);
 	}
 }
