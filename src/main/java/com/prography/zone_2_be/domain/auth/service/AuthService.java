@@ -1,5 +1,9 @@
 package com.prography.zone_2_be.domain.auth.service;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
@@ -9,83 +13,75 @@ import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 import com.prography.zone_2_be.global.utils.RefreshTokenHolder;
+
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
-    private final RefreshTokenHolder refreshTokenHolder;
+	private final UserRepository userRepository;
+	private final RefreshTokenHolder refreshTokenHolder;
+	private final JwtUtil jwtUtil;
 
-    private String createAccessToken(User user) {
-        return jwtUtil.generateAccessToken(user.getOauth2Key(), user.getUuid());
-    }
+	private String createAccessToken(User user) {
+		return jwtUtil.generateAccessToken(user.getOauth2Key(), user.getUuid());
+	}
 
-    private String createRefreshToken(User user) {
-        return jwtUtil.generateRefreshToken(user.getUuid());
-    }
+	private String createRefreshToken(User user) {
+		return jwtUtil.generateRefreshToken(user.getUuid());
+	}
 
-    public UserAuthResponse authorize(UserAuthRequest request) {
-        Optional<User> optionalUser = userRepository.findByOauth2Key(request.oauth2Key);
-        boolean isNew = optionalUser.isEmpty(); // Optional이 비어있으면 새로운 사용자
+	public User createUser(UserAuthRequest request) {
+		User newUser = User.forRegister(request.oauth2Key, request.email);
+		return userRepository.save(newUser);
+	}
 
-        User user = optionalUser.orElseGet(() -> {
-            User newUser = User.forRegister(request.oauth2Key, request.email);
-            return userRepository.save(newUser);
-        });
+	public UserAuthResponse authorize(UserAuthRequest request) {
+		Optional<User> optionalUser = userRepository.findByOauth2Key(request.oauth2Key);
+		boolean isNew = optionalUser.isEmpty(); // Optional이 비어있으면 새로운 사용자
 
-        String accessToken = this.createAccessToken(user);
-        String refreshToken = this.createRefreshToken(user);
+		User user = optionalUser.orElseGet(() -> createUser(request));
 
-        refreshTokenHolder.putRefreshToken(user.getUuid(), refreshToken);
+		String accessToken = this.createAccessToken(user);
+		String refreshToken = this.createRefreshToken(user);
 
-        return UserAuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .isNew(isNew)
-                .build();
-    }
+		refreshTokenHolder.putRefreshToken(user.getUuid(), refreshToken);
 
-    public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
-        // refresh token 유효성 검증
-        String refreshToken = request.getRefreshToken();
-        checkRefreshToken(refreshToken);
+		return UserAuthResponse.of(accessToken, refreshToken, isNew);
+	}
 
-        String uuid = jwtUtil.getUuid(refreshToken);
+	public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
+		// refresh token 유효성 검증
+		String refreshToken = request.getRefreshToken();
+		checkRefreshToken(refreshToken);
 
-        User user = userRepository.findByUuid(uuid)
-                .orElseThrow(UserNotFoundException::new);
+		String uuid = jwtUtil.getUuid(refreshToken);
 
-        String newAccessToken = this.createAccessToken(user);
-        String newRefreshToken = this.createRefreshToken(user);
+		User user = userRepository.findByUuid(uuid)
+			.orElseThrow(UserNotFoundException::new);
 
-        refreshTokenHolder.removeRefreshToken(uuid);
-        refreshTokenHolder.putRefreshToken(uuid, newRefreshToken);
+		String newAccessToken = this.createAccessToken(user);
+		String newRefreshToken = this.createRefreshToken(user);
 
-        return TokenRefreshResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
-    }
+		refreshTokenHolder.removeRefreshToken(uuid);
+		refreshTokenHolder.putRefreshToken(uuid, newRefreshToken);
 
-    private void checkRefreshToken(final String refreshToken) {
-        if(!jwtUtil.validateToken(refreshToken))
-            throw new JwtException("Invalid refresh token: " + refreshToken);
+		return TokenRefreshResponse.of(newAccessToken, newRefreshToken);
+	}
 
-        String uuid = jwtUtil.getUuid(refreshToken);
-        // refresh token id 조회
-        String findToken = refreshTokenHolder.getRefreshToken(uuid);
+	private void checkRefreshToken(final String refreshToken) {
+		if (!jwtUtil.validateToken(refreshToken))
+			throw new JwtException("Invalid refresh token: " + refreshToken);
 
-        if (!findToken.equals(refreshToken)) {
-            throw new JwtException("Refresh token does not match: " + refreshToken);
-        }
+		String uuid = jwtUtil.getUuid(refreshToken);
+		// refresh token id 조회
+		String findToken = refreshTokenHolder.getRefreshToken(uuid);
 
-    }
+		if (!findToken.equals(refreshToken)) {
+			throw new JwtException("Refresh token does not match: " + refreshToken);
+		}
+
+	}
 
 }
