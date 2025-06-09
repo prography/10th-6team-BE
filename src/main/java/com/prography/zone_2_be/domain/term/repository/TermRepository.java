@@ -8,9 +8,17 @@ import org.springframework.stereotype.Repository;
 
 import com.prography.zone_2_be.domain.term.entity.Term;
 import com.prography.zone_2_be.domain.term.entity.TermType;
+import com.prography.zone_2_be.global.error.ErrorCode;
+import com.prography.zone_2_be.global.exception.CustomException;
 
 @Repository
 public interface TermRepository extends JpaRepository<Term, Long> {
+
+	//default 메서드
+	default Term findByIdOrThrow(Long termId) {
+		return findById(termId)
+			.orElseThrow(() -> new CustomException(ErrorCode.TERM_NOT_FOUND));
+	}
 
 	@Query(value = """
 		SELECT t.*
