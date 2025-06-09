@@ -19,6 +19,9 @@ public enum ErrorCode {
 	// Notice 에러 4100번대
 	NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, 4100, "해당 ID의 공지사항을 찾을 수 없습니다."),
 
+	// Term 에러 4200번대
+	TERM_NOT_FOUND(HttpStatus.NOT_FOUND, 4200, "해당 ID의 약관을 찾을 수 없습니다."),
+
 	// Global Server 에러
 	DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 5000, "서버에서 알 수 없는 오류 발생.");
 
