@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.prography.zone_2_be.domain.term.agreement.dto.TermAgreementFindResponse;
 import com.prography.zone_2_be.domain.term.agreement.dto.TermAgreementSaveRequest;
 import com.prography.zone_2_be.domain.term.agreement.entity.TermAgreement;
 import com.prography.zone_2_be.domain.term.agreement.repository.TermAgreementRepository;
@@ -36,6 +37,22 @@ public class TermAgreementService {
 		List<TermAgreement> newAgreements = createNewAgreements(user, terms);
 
 		termAgreementRepository.saveAll(newAgreements);
+	}
+
+	public List<TermAgreementFindResponse> getTermAgreementStatus(String uuid, List<Long> termIds) {
+		User user = userRepository.findByUuid(uuid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+		List<Term> terms = findTermsByIds(termIds);
+
+		List<TermAgreement> agreements = termAgreementRepository.findByUserAndTermIn(user, terms);
+
+		return termIds.stream()
+			.map(id -> TermAgreementFindResponse.of(
+				id,
+				agreements.stream()
+					.anyMatch(agreement -> agreement.getTerm().getId().equals(id))
+			))
+			.toList();
 	}
 
 	private void validateAllAgreed(List<TermAgreementSaveRequest> requests) {
