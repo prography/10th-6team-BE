@@ -22,6 +22,9 @@ public enum ErrorCode {
 	// Term 에러 4200번대
 	TERM_NOT_FOUND(HttpStatus.NOT_FOUND, 4200, "해당 ID의 약관을 찾을 수 없습니다."),
 
+	// TermAgreement 에러 4300번대
+	REQUIRED_TERMS_NOT_AGREED(HttpStatus.BAD_REQUEST, 4301, "필수 약관에 모두 동의해야 합니다."),
+
 	// Global Server 에러
 	DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 5000, "서버에서 알 수 없는 오류 발생.");
 
