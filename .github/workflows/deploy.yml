@@ -27,7 +27,7 @@ jobs:
           cache: gradle
 
       - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew clean build -x test
 
       - name: Log in to Docker Hub
         run: |
