@@ -36,5 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-*.yml
+/src/main/resources/*.yml
+docker-compose.yml
 .DS_Store
