@@ -26,12 +26,12 @@ public class UserService {
 
 	public UserFindResponse findUser() {
 		return UserFindResponse.from(
-			userRepository.findByUuid(jwtUtil.getUuid()).orElseThrow(UserNotFoundException::new));
+			userRepository.findByUuid(JwtUtil.getUuid()).orElseThrow(UserNotFoundException::new));
 	}
 
 	@Transactional
 	public void updateUser(UserUpdateRequest dto) {
-		String uuid = jwtUtil.getUuid();
+		String uuid = JwtUtil.getUuid();
 		User user = userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
 		user.updateUserInfo(dto);
 	}
