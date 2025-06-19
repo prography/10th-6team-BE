@@ -52,7 +52,7 @@ public class User extends BaseEntity implements UserDetails {
 	private Gender gender;
 
 	@Column(nullable = false)
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.ORDINAL)
 	private Role role;
 
 	@Override
