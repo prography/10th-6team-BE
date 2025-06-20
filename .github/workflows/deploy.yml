@@ -68,9 +68,9 @@ jobs:
       - name: Deploy to Staging EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST_STAGE }}
-          username: ${{ secrets.EC2_USERNAME_STAGE }}
-          key: ${{ secrets.EC2_PRIVATE_KEY_STAGE }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
             IMAGE=${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-stage
@@ -93,9 +93,9 @@ jobs:
       - name: Deploy to Production EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST_PROD }}
-          username: ${{ secrets.EC2_USERNAME_PROD }}
-          key: ${{ secrets.EC2_PRIVATE_KEY_PROD }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
             IMAGE=${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-prod
