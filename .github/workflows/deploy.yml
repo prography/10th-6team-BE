@@ -4,9 +4,22 @@ on:
   push:
     branches:
       - dev
+      - release/stage
+      - release/prod
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-push:
+    if: |
+      startsWith(github.ref, 'refs/heads/dev') ||
+      startsWith(github.ref, 'refs/heads/release/')
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +30,9 @@ jobs:
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_PROPERTIES }}" \
-            > src/main/resources/application.yml
+              > src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_TEST_PROPERTIES }}" \
+              > src/main/resources/application-test.yml
 
       - name: Set up Java 17 (Temurin) with Gradle cache
         uses: actions/setup-java@v4
@@ -35,31 +50,85 @@ jobs:
             | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build & Push Docker image
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/zone2be-app:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/zone2be-app:latest
+          TAG="${BRANCH//\//-}"   # ex: release/prod → release-prod
+          IMAGE="${{ secrets.DOCKER_USERNAME }}/zone2be-app:${TAG}"
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"
 
-  deploy:
+  deploy-staging:
+    if: github.ref == 'refs/heads/release/stage'
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: staging
 
     steps:
-      - name: Deploy spring app to EC2
+      - name: Deploy to Staging EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ secrets.EC2_HOST_STAGE }}
+          username: ${{ secrets.EC2_USERNAME_STAGE }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_STAGE }}
           script_stop: true
           script: |
-            
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-stage
             docker stop zone2be-app || true
             docker rm   zone2be-app || true
-
-            docker pull ${{ secrets.DOCKER_USERNAME }}/zone2be-app:latest
-            
+            docker pull $IMAGE
             docker run -d \
               --name zone2be-app \
               --network zone2be_network \
               -p 8080:8080 \
-              ${{ secrets.DOCKER_USERNAME }}/zone2be-app:latest
+              $IMAGE
+
+  deploy-production:
+    if: github.ref == 'refs/heads/release/prod'
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy to Production EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_PROD }}
+          username: ${{ secrets.EC2_USERNAME_PROD }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_PROD }}
+          script_stop: true
+          script: |
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-prod
+            docker stop zone2be-app || true
+            docker rm   zone2be-app || true
+            docker pull $IMAGE
+            docker run -d \
+              --name zone2be-app \
+              --network zone2be_network \
+              -p 8080:8080 \
+              $IMAGE
+
+  post-sync:
+    if: github.ref == 'refs/heads/release/prod'
+    needs: deploy-production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create PR to sync release/prod → dev
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Chore - release/prod → dev 싱크"
+          title: "[CI] release/prod → dev 싱크"
+          branch: sync/prod-to-dev
+          base: dev
+          body: |
+            이 PR은 release/prod 브랜치에 배포된 커밋을 dev 브랜치에 반영하기 위해 자동 생성되었습니다.
+      - name: Enable auto-merge (Rebase and merge)
+        if: steps.cpr.outputs.pull-request-number != ''
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: rebase
