@@ -7,9 +7,11 @@ import com.prography.zone_2_be.global.entity.BaseEntity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Getter
 public class Workout extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
@@ -18,11 +20,14 @@ public class Workout extends BaseEntity {
 	@Column(nullable = false)
 	private long execTime;
 
-	@Column
+	@Column(nullable = false)
 	private int kcalUsage;
 
-	@Column(name="zone2_usage")
-	private int zone2Usage;
+	@Column(nullable = false)
+	private int fatUsage;
+
+	@Column(nullable = false)
+	private double zone2Rate;
 
 	@Column(nullable = false, updatable = false)
 	private String uuid;
@@ -33,12 +38,14 @@ public class Workout extends BaseEntity {
 	private Activity activity;
 
 	@Builder
-	private Workout(User user, String uuid, long execTime, int kcalUsage, int zone2Usage) {
+	private Workout(User user, String uuid, long execTime, int kcalUsage, int fatUsage, double zone2Rate, Activity activity) {
 		this.user = user;
 		this.uuid = uuid;
 		this.execTime = execTime;
 		this.kcalUsage = kcalUsage;
-		this.zone2Usage = zone2Usage;
+		this.fatUsage = fatUsage;
+		this.zone2Rate = zone2Rate;
+		this.activity = activity;
 	}
 
 }
