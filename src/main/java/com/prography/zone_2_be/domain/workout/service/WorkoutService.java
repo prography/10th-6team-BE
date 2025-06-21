@@ -14,8 +14,9 @@ public class WorkoutService {
 	private final WorkoutRepository workoutRepository;
 	private final UserRepository userRepository;
 
-	private Double calculateFatUsageInGram(Integer kcalUsage) {
-		return ((kcalUsage * 0.65) / 9) - ((kcalUsage * 1.5 * 0.15) / 9);
+	private Integer calculateFatUsageInGram(Integer kcalUsage) {
+		double value =  ((kcalUsage * 0.65) / 9) - ((kcalUsage * 1.5 * 0.15) / 9);
+		return (int) value;
 	}
 
 	public WorkoutGetFatUsageResponse getFatUsage(Integer kcalUsage) {
