@@ -5,14 +5,14 @@ import lombok.Getter;
 
 @Getter
 public class WorkoutGetFatUsageResponse {
-	private final Double result;
+	private final Integer result;
 
 	@Builder
-	private WorkoutGetFatUsageResponse(Double result) {
+	private WorkoutGetFatUsageResponse(Integer result) {
 		this.result = result;
 	}
 
-	public static WorkoutGetFatUsageResponse of(Double result) {
+	public static WorkoutGetFatUsageResponse of(Integer result) {
 		return WorkoutGetFatUsageResponse.builder()
 			.result(result)
 			.build();
