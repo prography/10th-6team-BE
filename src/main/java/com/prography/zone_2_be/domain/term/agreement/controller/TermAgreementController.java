@@ -29,8 +29,7 @@ public class TermAgreementController {
 	@PostMapping("/agree-all")
 	public ResponseEntity<ApiResponse<Void>> saveAllTermAgreement(
 		@RequestBody @Valid TermAgreementSaveAllRequest request) {
-		String uuid = JwtUtil.getUuid();
-		termAgreementService.saveAllTermAgreement(uuid, request.getTermAgreementSaveRequests());
+		termAgreementService.saveAllTermAgreement(JwtUtil.getUser(), request.getTermAgreementSaveRequests());
 		return ApiResponse.success();
 	}
 

@@ -27,9 +27,7 @@ public class TermAgreementService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public void saveAllTermAgreement(String uuid, List<TermAgreementSaveRequest> requests) {
-		User user = userRepository.findByUuid(uuid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
+	public void saveAllTermAgreement(User user, List<TermAgreementSaveRequest> requests) {
 		validateAllAgreed(requests);
 
 		List<Term> terms = findTermsByIds(extractTermIds(requests));

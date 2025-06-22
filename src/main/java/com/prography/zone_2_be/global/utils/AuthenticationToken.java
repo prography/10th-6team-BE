@@ -2,14 +2,15 @@ package com.prography.zone_2_be.global.utils;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 public class AuthenticationToken extends AbstractAuthenticationToken {
-    private final Object principal;
+    private final UserDetails principal;
     private final Object credential;
 
-    public AuthenticationToken(Object principal, Object credential, Collection<? extends GrantedAuthority> authorities) {
+    public AuthenticationToken(UserDetails principal, Object credential, Collection<? extends GrantedAuthority> authorities) {
         super(authorities); // 이후 custom한 authority 클래스 사용
         this.principal = principal;
         this.credential = credential;
@@ -22,7 +23,7 @@ public class AuthenticationToken extends AbstractAuthenticationToken {
     }
 
     @Override
-    public Object getPrincipal() {
+    public UserDetails getPrincipal() {
         return this.principal;
     }
 }
