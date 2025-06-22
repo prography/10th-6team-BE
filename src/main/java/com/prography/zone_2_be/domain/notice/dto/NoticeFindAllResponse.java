@@ -25,7 +25,7 @@ public class NoticeFindAllResponse {
 		return NoticeFindAllResponse.builder()
 			.id(notice.getId())
 			.title(notice.getTitle())
-			.createdAt(notice.getCreatedAt())
+			.createdAt(notice.getCreatedAt().getEpochSecond())
 			.build();
 	}
 }

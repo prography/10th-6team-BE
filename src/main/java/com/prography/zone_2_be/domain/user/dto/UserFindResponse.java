@@ -1,37 +1,32 @@
 package com.prography.zone_2_be.domain.user.dto;
 
-import com.prography.zone_2_be.domain.user.entity.Gender;
-import com.prography.zone_2_be.domain.user.entity.Role;
+import java.time.LocalDate;
+
 import com.prography.zone_2_be.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Builder
 @AllArgsConstructor
 @Getter
 public class UserFindResponse {
-    private String uuid;
-    private String email;
-    private LocalDate birth;
-    private int height;
-    private int weight;
-    private Gender gender;
+	private String uuid;
+	private String email;
+	private LocalDate birth;
+	private int height;
+	private int weight;
+	private Integer gender;
 
-    public static UserFindResponse from(User user) {
-        return UserFindResponse.builder()
-                .uuid(user.getUuid())
-                .email(user.getEmail())
-                .birth(user.getBirth())
-                .height(user.getHeight())
-                .weight(user.getWeight())
-                .gender(user.getGender())
-                .build();
-    }
+	public static UserFindResponse from(User user) {
+		return UserFindResponse.builder()
+			.uuid(user.getUuid())
+			.email(user.getEmail())
+			.birth(user.getBirth())
+			.height(user.getHeight())
+			.weight(user.getWeight())
+			.gender(user.getGender().getValue())
+			.build();
+	}
 }

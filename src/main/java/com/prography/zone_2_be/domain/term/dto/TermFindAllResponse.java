@@ -30,7 +30,7 @@ public class TermFindAllResponse {
 			.id(term.getId())
 			.content(term.getContent())
 			.termType(term.getTermType())
-			.createdAt(term.getCreatedAt())
+			.createdAt(term.getCreatedAt().getEpochSecond())
 			.build();
 	}
 }

@@ -6,6 +6,8 @@ import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
+
 
 @Getter
 @MappedSuperclass
@@ -19,5 +21,5 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(nullable = false, updatable = false, columnDefinition = "BIGINT")
     @Convert(converter = InstantToEpochSecondConverter.class)
-    private Long createdAt;
+    private Instant createdAt;
 }
