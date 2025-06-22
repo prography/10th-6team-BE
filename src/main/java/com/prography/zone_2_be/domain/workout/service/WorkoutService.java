@@ -2,9 +2,7 @@ package com.prography.zone_2_be.domain.workout.service;
 
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
-import com.prography.zone_2_be.domain.workout.dto.WorkoutGetHistoryResponse;
-import com.prography.zone_2_be.domain.workout.dto.WorkoutHistoryDto;
-import com.prography.zone_2_be.domain.workout.dto.WorkoutTotalDto;
+import com.prography.zone_2_be.domain.workout.dto.*;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
-import com.prography.zone_2_be.domain.workout.dto.WorkoutGetFatUsageResponse;
 import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -50,17 +47,30 @@ public class WorkoutService {
 				.collect(Collectors.toList());
 
 		// 2. 전체 합계 조회 (DB에서 직접 SUM)
-		Optional<WorkoutTotalDto> sumsOptional = workoutRepository.findTotalSumsByUserIdAndCreatedAtRange(
+//		Optional<IWorkoutTotalDto> sumsOptional = workoutRepository.findTotalSumsByUserIdAndCreatedAtRange(
+//				user, startTime, endTime);
+//
+//		// 결과가 없을 경우를 대비하여 기본값 설정 (모두 0L)
+//		WorkoutTotalDto total = sumsOptional.orElse(new WorkoutTotalDto(0L, 0L, 0L));
+
+
+		// 2. 전체 합계 조회 (DB에서 직접 SUM) - 반환 타입이 IWorkoutTotalDto로 변경
+		Optional<IWorkoutTotalDto> sumsOptional = workoutRepository.findTotalSumsByUserIdAndCreatedAtRange(
 				user, startTime, endTime);
 
-		// 결과가 없을 경우를 대비하여 기본값 설정 (모두 0L)
-		WorkoutTotalDto total = sumsOptional.orElse(new WorkoutTotalDto(0L, 0L, 0L));
-
+		IWorkoutTotalDto total = sumsOptional.orElseGet(() -> new IWorkoutTotalDto() {
+			@Override
+			public Long getExecTimeSum() { return 0L; }
+			@Override
+			public Long getFatUsageSum() { return 0L; }
+			@Override
+			public Long getKcalUsageSum() { return 0L; }
+		});
 		// 3. 두 결과를 최종 WorkoutGetHistoryResponse DTO에 담아 반환
 		return new WorkoutGetHistoryResponse(
-				total.getTotalExecTime(),
-				total.getTotalFatUsage(),
-				total.getTotalKcalUsage(),
+				total.getExecTimeSum(),
+				total.getFatUsageSum(),
+				total.getKcalUsageSum(),
 				histories
 		);
 	}

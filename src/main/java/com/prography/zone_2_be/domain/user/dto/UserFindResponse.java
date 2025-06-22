@@ -11,13 +11,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Builder
 @AllArgsConstructor
 @Getter
 public class UserFindResponse {
     private String uuid;
     private String email;
-    private long birth;
+    private LocalDate birth;
     private int height;
     private int weight;
     private Gender gender;
