@@ -14,6 +14,7 @@ import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,27 +37,24 @@ public class WorkoutService {
 	public WorkoutGetHistoryResponse getWorkoutHistory(Long startTime, Long endTime, int page, int size) {
 		User user = JwtUtil.getUser();
 
+		// Long (초 단위)을 Instant 객체로 변환
+		Instant startInstant = Instant.ofEpochSecond(startTime);
+		Instant endInstant = Instant.ofEpochSecond(endTime);
+
+
 		// 1. 페이지네이션된 개별 운동 기록 조회
 		Pageable pageable = PageRequest.of(page, size);
-		List<Workout> workouts = workoutRepository.findByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtDesc(
-				user, startTime, endTime, pageable);
+		List<Workout> workouts = workoutRepository.findWorkoutsByUserIdAndCreatedAtRange(
+				user, startInstant, endInstant, pageable);
 
 		// 조회된 Workout 엔티티 리스트를 WorkoutHistoryDto 리스트로 변환
 		List<WorkoutHistoryDto> histories = workouts.stream()
 				.map(WorkoutHistoryDto::from) // WorkoutHistoryDto의 팩토리 메서드 사용
 				.collect(Collectors.toList());
 
-		// 2. 전체 합계 조회 (DB에서 직접 SUM)
-//		Optional<IWorkoutTotalDto> sumsOptional = workoutRepository.findTotalSumsByUserIdAndCreatedAtRange(
-//				user, startTime, endTime);
-//
-//		// 결과가 없을 경우를 대비하여 기본값 설정 (모두 0L)
-//		WorkoutTotalDto total = sumsOptional.orElse(new WorkoutTotalDto(0L, 0L, 0L));
-
-
 		// 2. 전체 합계 조회 (DB에서 직접 SUM) - 반환 타입이 IWorkoutTotalDto로 변경
 		Optional<IWorkoutTotalDto> sumsOptional = workoutRepository.findTotalSumsByUserIdAndCreatedAtRange(
-				user, startTime, endTime);
+				user, startInstant, endInstant);
 
 		IWorkoutTotalDto total = sumsOptional.orElseGet(() -> new IWorkoutTotalDto() {
 			@Override

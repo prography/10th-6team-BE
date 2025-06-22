@@ -23,7 +23,7 @@ public class NoticeFindResponse {
 		return NoticeFindResponse.builder()
 			.title(notice.getTitle())
 			.content(notice.getContent())
-			.createdAt(notice.getCreatedAt())
+			.createdAt(notice.getCreatedAt().getEpochSecond())
 			.build();
 	}
 }

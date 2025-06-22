@@ -20,7 +20,7 @@ public class TermFindAllVersionResponse {
 	public static TermFindAllVersionResponse from(Term term) {
 		return TermFindAllVersionResponse.builder()
 			.id(term.getId())
-			.createdAt(term.getCreatedAt())
+			.createdAt(term.getCreatedAt().getEpochSecond())
 			.build();
 	}
 }
