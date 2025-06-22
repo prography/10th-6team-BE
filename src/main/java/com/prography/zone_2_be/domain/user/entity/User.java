@@ -1,5 +1,6 @@
 package com.prography.zone_2_be.domain.user.entity;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class User extends BaseEntity implements UserDetails {
 
 	@Column
 	@Setter
-	private long birth;
+	private LocalDate birth;
 
 	@Column
 	@Setter
