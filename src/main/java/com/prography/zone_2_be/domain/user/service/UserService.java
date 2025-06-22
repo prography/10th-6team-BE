@@ -25,14 +25,18 @@ public class UserService {
 	}
 
 	public UserFindResponse findUser() {
-		return UserFindResponse.from(
-			userRepository.findByUuid(JwtUtil.getUuid()).orElseThrow(UserNotFoundException::new));
+		return UserFindResponse.from(JwtUtil.getUser());
 	}
 
 	@Transactional
 	public void updateUser(UserUpdateRequest dto) {
-		String uuid = JwtUtil.getUuid();
-		User user = userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
-		user.updateUserInfo(dto);
+		// JwtUtil에서 현재 사용자의 UserDetails (principal)를 가져옴
+		User currentUserPrincipal = JwtUtil.getUser();
+
+		// 2. 현재 사용자 ID를 사용하여 DB에서 User 엔티티를 다시 조회
+		//    이렇게 조회된 엔티티는 현재 트랜잭션의 영속성 컨텍스트에 의해 관리
+		User user = findUserByUuid(currentUserPrincipal.getUuid());
+
+		user.updateUserInfo(dto); // 이 변경은 트랜잭션 커밋 시점에 자동으로 DB에 반영됨
 	}
 }

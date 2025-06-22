@@ -37,11 +37,7 @@ public class WorkoutService {
 	}
 
 	public WorkoutGetHistoryResponse getWorkoutHistory(Long startTime, Long endTime, int page, int size) {
-		String uuid = JwtUtil.getUuid();
-
-		User user = userRepository.findByUuid(uuid)
-				.orElseThrow(UserNotFoundException::new);
-
+		User user = JwtUtil.getUser();
 
 		// 1. 페이지네이션된 개별 운동 기록 조회
 		Pageable pageable = PageRequest.of(page, size);

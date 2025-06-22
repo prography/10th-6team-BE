@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import com.prography.zone_2_be.domain.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -82,8 +83,8 @@ public class JwtUtil {
 		return false;
 	}
 
-	public static String getUuid() {
-		return (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	public static User getUser() {
+		return (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 
 }
