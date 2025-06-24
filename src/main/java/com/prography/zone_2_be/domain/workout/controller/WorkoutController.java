@@ -1,5 +1,7 @@
 package com.prography.zone_2_be.domain.workout.controller;
 
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,11 +31,16 @@ public class WorkoutController {
 	}
 
 	@GetMapping("/history")
-	public ResponseEntity<ApiResponse<WorkoutGetHistoryResponse>> workoutHistory(
+	public ResponseEntity<ApiResponse<WorkoutGetHistoryResponse>> getWorkoutHistory(
 		@Valid @RequestParam("start_time") Long startTime,
 		@Valid @RequestParam("end_time") Long endTime,
 		@Valid @RequestParam("page") int page,
 		@Valid @RequestParam("size") int size) {
 		return ApiResponse.success(workoutService.getWorkoutHistory(startTime, endTime, page, size));
+	}
+
+	@GetMapping("/zone2")
+	public ResponseEntity<ApiResponse<WorkoutGetZone2Response>> getZone2(){
+		return ApiResponse.success(workoutService.getZone2());
 	}
 }

@@ -1,20 +1,24 @@
 package com.prography.zone_2_be.domain.workout.service;
 
 import com.prography.zone_2_be.domain.user.entity.User;
-import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.workout.dto.*;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
+import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
-import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
+
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetFatUsageResponse;
 
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -71,5 +75,24 @@ public class WorkoutService {
 				total.getKcalUsageSum(),
 				histories
 		);
+
+	}
+
+	public WorkoutGetZone2Response getZone2() {
+		User user = JwtUtil.getUser();
+
+		LocalDate currentDate = LocalDate.now(); // 현재 날짜 가져오기
+
+		// 태어난 날짜가 현재 날짜보다 미래일 경우
+		if (user.getBirth().isAfter(currentDate)) {
+			throw new IllegalArgumentException("생년월일이 현재 날짜보다 미래일 수 없습니다.");
+		}
+
+		// Period.between()을 사용하여 기간 계산
+		Period period = Period.between(user.getBirth(), currentDate);
+
+		// 년도만 가져오면 그것이 바로 만나이
+		int age = period.getYears();
+		return new WorkoutGetZone2Response((int)((220-age)*0.6), (int)((220-age)*0.7));
 	}
 }
