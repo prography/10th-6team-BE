@@ -15,6 +15,7 @@ import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.exception.CustomException;
+import com.prography.zone_2_be.global.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +28,9 @@ public class TermAgreementService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public void saveAllTermAgreement(User user, List<TermAgreementSaveRequest> requests) {
+	public void saveAllTermAgreement(List<TermAgreementSaveRequest> requests) {
+		User user = JwtUtil.getUser();
+
 		validateAllAgreed(requests);
 
 		List<Term> terms = findTermsByIds(extractTermIds(requests));
@@ -37,8 +40,8 @@ public class TermAgreementService {
 		termAgreementRepository.saveAll(newAgreements);
 	}
 
-	public List<TermAgreementFindResponse> getTermAgreementStatus(String uuid, List<Long> termIds) {
-		User user = userRepository.findByUuid(uuid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+	public List<TermAgreementFindResponse> getTermAgreementStatus(List<Long> termIds) {
+		User user = JwtUtil.getUser();
 
 		List<Term> terms = findTermsByIds(termIds);
 

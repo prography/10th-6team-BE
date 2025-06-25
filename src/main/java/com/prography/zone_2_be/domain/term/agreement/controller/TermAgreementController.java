@@ -14,7 +14,6 @@ import com.prography.zone_2_be.domain.term.agreement.dto.TermAgreementFindRespon
 import com.prography.zone_2_be.domain.term.agreement.dto.TermAgreementSaveAllRequest;
 import com.prography.zone_2_be.domain.term.agreement.service.TermAgreementService;
 import com.prography.zone_2_be.global.response.ApiResponse;
-import com.prography.zone_2_be.global.utils.JwtUtil;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class TermAgreementController {
 	@PostMapping("/agree-all")
 	public ResponseEntity<ApiResponse<Void>> saveAllTermAgreement(
 		@RequestBody @Valid TermAgreementSaveAllRequest request) {
-		termAgreementService.saveAllTermAgreement(JwtUtil.getUser(), request.getTermAgreementSaveRequests());
+		termAgreementService.saveAllTermAgreement(request.getTermAgreementSaveRequests());
 		return ApiResponse.success();
 	}
 
@@ -37,8 +36,7 @@ public class TermAgreementController {
 	public ResponseEntity<ApiResponse<List<TermAgreementFindResponse>>> getTermAgreementStatus(
 		@RequestParam List<Long> termIds
 	) {
-		String uuid = JwtUtil.getUuid();
-		List<TermAgreementFindResponse> response = termAgreementService.getTermAgreementStatus(uuid, termIds);
+		List<TermAgreementFindResponse> response = termAgreementService.getTermAgreementStatus(termIds);
 		return ApiResponse.success(response);
 	}
 }
