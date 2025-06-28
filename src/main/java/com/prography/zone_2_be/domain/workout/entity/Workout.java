@@ -26,7 +26,7 @@ public class Workout extends BaseEntity {
 	private int fatUsage;
 
 	@Column(nullable = false)
-	private double zone2Rate;
+	private int zone2Rate;
 
 	@Column(nullable = false, updatable = false)
 	private String uuid;
@@ -37,7 +37,7 @@ public class Workout extends BaseEntity {
 	private Activity activity;
 
 	@Builder
-	private Workout(User user, String uuid, long execTime, int kcalUsage, int fatUsage, double zone2Rate, Activity activity) {
+	private Workout(User user, String uuid, long execTime, int kcalUsage, int fatUsage, int zone2Rate, Activity activity) {
 		this.user = user;
 		this.uuid = uuid;
 		this.execTime = execTime;
