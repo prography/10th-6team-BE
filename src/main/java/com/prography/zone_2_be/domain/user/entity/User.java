@@ -32,9 +32,6 @@ public class User extends BaseEntity implements UserDetails {
 	@Column(nullable = false, updatable = false)
 	private String uuid;
 
-	@Column(nullable = false)
-	private String email;
-
 	@Column
 	@Setter
 	private LocalDate birth;
@@ -95,17 +92,15 @@ public class User extends BaseEntity implements UserDetails {
 	}
 
 	@Builder
-	public User(String oauth2Key, String uuid, String email, Role role) {
+	public User(String oauth2Key, String uuid, Role role) {
 		this.oauth2Key = oauth2Key;
-		this.email = email;
 		this.role = role;// Default role is User
 		this.uuid = uuid;
 	}
 
-	public static User forRegister(String oauth2Key, String email) {
+	public static User forRegister(String oauth2Key) {
 		return User.builder()
 			.oauth2Key(oauth2Key)
-			.email(email)
 			.role(Role.User) // Default role is User
 			.uuid(UUID.randomUUID().toString())
 			.build();
