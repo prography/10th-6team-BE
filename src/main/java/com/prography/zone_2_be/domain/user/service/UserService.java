@@ -39,4 +39,10 @@ public class UserService {
 
 		user.updateUserInfo(dto); // 이 변경은 트랜잭션 커밋 시점에 자동으로 DB에 반영됨
 	}
+
+	public void deleteUser() {
+		User user = JwtUtil.getUser();
+		userRepository.delete(user);
+		log.info("사용자 {} 삭제됨", user.getUuid());
+	}
 }

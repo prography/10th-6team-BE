@@ -27,4 +27,10 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserFindResponse>> findUser() {
         return ApiResponse.success(userService.findUser());
     }
+
+    @DeleteMapping("")
+    public ResponseEntity<ApiResponse<Void>> deleteUser() {
+        userService.deleteUser();
+        return ApiResponse.success();
+    }
 }
