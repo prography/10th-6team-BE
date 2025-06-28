@@ -9,6 +9,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.response.ApiResponse;
@@ -62,5 +63,13 @@ public class GlobalExceptionHandler {
 
 		log.error("ConstraintViolationException: {}", ex.getMessage(), ex);
 		return ApiResponse.error(ErrorCode.INVALID_REQUEST_PARAM, errorMessage);
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+		String message = "올바른 파라미터 타입이 아닙니다";
+		log.error("TypeMismatch on parameter '{}': {}", ex.getName(), ex.getMessage(), ex);
+
+		return ApiResponse.error(ErrorCode.INVALID_REQUEST_PARAM, message);
 	}
 }
