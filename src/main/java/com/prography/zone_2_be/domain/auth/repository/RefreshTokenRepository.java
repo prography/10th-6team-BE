@@ -1,6 +1,9 @@
 package com.prography.zone_2_be.domain.auth.repository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
@@ -20,6 +23,7 @@ public class RefreshTokenRepository {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private static final String KEY_PREFIX = "refreshToken:";
 
+
 	/**
 	 * 사용자의 현재 유효한 Refresh Token을 저장합니다.
 	 * 동일한 uuid에 대해 새로운 토큰이 저장되면 기존 토큰은 덮어쓰여집니다.
@@ -28,7 +32,8 @@ public class RefreshTokenRepository {
 	 */
 	public void save(String uuid, String refreshToken) {
 		String key = KEY_PREFIX + uuid;
-		redisTemplate.opsForValue().set(key, refreshToken, jwtUtil.getRefreshTokenExpiration());
+		Duration expiration = Duration.ofMillis(jwtUtil.getRefreshTokenExpiration());
+		redisTemplate.opsForValue().set(key, refreshToken, expiration);
 	}
 
 	/**
