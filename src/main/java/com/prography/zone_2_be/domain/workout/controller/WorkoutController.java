@@ -1,16 +1,18 @@
 package com.prography.zone_2_be.domain.workout.controller;
 
-import com.prography.zone_2_be.domain.workout.dto.WorkoutGetResultResponse;
-import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetFatUsageResponse;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetHistoryResponse;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetResultResponse;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveRequest;
 import com.prography.zone_2_be.domain.workout.service.WorkoutService;
 import com.prography.zone_2_be.global.response.ApiResponse;
 
@@ -41,14 +43,20 @@ public class WorkoutController {
 	}
 
 	@GetMapping("/zone2")
-	public ResponseEntity<ApiResponse<WorkoutGetZone2Response>> getZone2(){
+	public ResponseEntity<ApiResponse<WorkoutGetZone2Response>> getZone2() {
 		return ApiResponse.success(workoutService.getZone2());
 	}
 
 	@GetMapping("/result")
 	public ResponseEntity<ApiResponse<WorkoutGetResultResponse>> getWorkoutResult(
-			@Valid @RequestParam("uuid") String uuid) {
+		@Valid @RequestParam("uuid") String uuid) {
 		WorkoutGetResultResponse result = workoutService.getWorkoutResult(uuid);
 		return ApiResponse.success(result);
+	}
+
+	@PostMapping
+	public ResponseEntity<ApiResponse<Void>> saveWorkout(@RequestBody WorkoutSaveRequest workoutSaveRequest) {
+		workoutService.saveWorkout(workoutSaveRequest);
+		return ApiResponse.success();
 	}
 }

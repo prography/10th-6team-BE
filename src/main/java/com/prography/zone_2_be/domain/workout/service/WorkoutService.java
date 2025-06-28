@@ -1,28 +1,33 @@
 package com.prography.zone_2_be.domain.workout.service;
 
-import com.prography.zone_2_be.domain.user.entity.User;
-import com.prography.zone_2_be.domain.workout.dto.*;
-import com.prography.zone_2_be.domain.workout.entity.Workout;
-import com.prography.zone_2_be.domain.workout.exception.WorkoutNotFoundException;
-import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
-import com.prography.zone_2_be.global.utils.JwtUtil;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import com.prography.zone_2_be.domain.user.repository.UserRepository;
-import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
-
-import com.prography.zone_2_be.domain.workout.dto.WorkoutGetFatUsageResponse;
-
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.prography.zone_2_be.domain.user.entity.User;
+import com.prography.zone_2_be.domain.user.repository.UserRepository;
+import com.prography.zone_2_be.domain.workout.dto.FoodFigure;
+import com.prography.zone_2_be.domain.workout.dto.IWorkoutTotalDto;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetFatUsageResponse;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetHistoryResponse;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetResultResponse;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutHistoryDto;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveRequest;
+import com.prography.zone_2_be.domain.workout.entity.Workout;
+import com.prography.zone_2_be.domain.workout.exception.WorkoutNotFoundException;
+import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
+import com.prography.zone_2_be.global.utils.JwtUtil;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -31,14 +36,14 @@ public class WorkoutService {
 	private final UserRepository userRepository;
 
 	private Integer getRelativeFatUsage(Integer kcalUsage) {
-		return (int) (getZone2FatUsage(kcalUsage) - getZone4FatUsage(kcalUsage));
+		return (int)(getZone2FatUsage(kcalUsage) - getZone4FatUsage(kcalUsage));
 	}
 
-	private Double getZone2FatUsage(Integer kcalUsage){
+	private Double getZone2FatUsage(Integer kcalUsage) {
 		return (kcalUsage * 0.65) / 9;
 	}
 
-	private Double getZone4FatUsage(Integer kcalUsage){
+	private Double getZone4FatUsage(Integer kcalUsage) {
 		return (kcalUsage * 1.5 * 0.15) / 9;
 	}
 
@@ -53,35 +58,42 @@ public class WorkoutService {
 		Instant startInstant = Instant.ofEpochSecond(startTime);
 		Instant endInstant = Instant.ofEpochSecond(endTime);
 
-
 		// 1. 페이지네이션된 개별 운동 기록 조회
 		Pageable pageable = PageRequest.of(page, size);
 		List<Workout> workouts = workoutRepository.findWorkoutsByUserIdAndCreatedAtRange(
-				user, startInstant, endInstant, pageable);
+			user, startInstant, endInstant, pageable);
 
 		// 조회된 Workout 엔티티 리스트를 WorkoutHistoryDto 리스트로 변환
 		List<WorkoutHistoryDto> histories = workouts.stream()
-				.map(WorkoutHistoryDto::from) // WorkoutHistoryDto의 팩토리 메서드 사용
-				.collect(Collectors.toList());
+			.map(WorkoutHistoryDto::from) // WorkoutHistoryDto의 팩토리 메서드 사용
+			.collect(Collectors.toList());
 
 		// 2. 전체 합계 조회 (DB에서 직접 SUM) - 반환 타입이 IWorkoutTotalDto로 변경
 		Optional<IWorkoutTotalDto> sumsOptional = workoutRepository.findTotalSumsByUserIdAndCreatedAtRange(
-				user, startInstant, endInstant);
+			user, startInstant, endInstant);
 
 		IWorkoutTotalDto total = sumsOptional.orElseGet(() -> new IWorkoutTotalDto() {
 			@Override
-			public Long getExecTimeSum() { return 0L; }
+			public Long getExecTimeSum() {
+				return 0L;
+			}
+
 			@Override
-			public Long getFatUsageSum() { return 0L; }
+			public Long getFatUsageSum() {
+				return 0L;
+			}
+
 			@Override
-			public Long getKcalUsageSum() { return 0L; }
+			public Long getKcalUsageSum() {
+				return 0L;
+			}
 		});
 		// 3. 두 결과를 최종 WorkoutGetHistoryResponse DTO에 담아 반환
 		return new WorkoutGetHistoryResponse(
-				total.getExecTimeSum(),
-				total.getFatUsageSum(),
-				total.getKcalUsageSum(),
-				histories
+			total.getExecTimeSum(),
+			total.getFatUsageSum(),
+			total.getKcalUsageSum(),
+			histories
 		);
 
 	}
@@ -101,15 +113,23 @@ public class WorkoutService {
 
 		// 년도만 가져오면 그것이 바로 만나이
 		int age = period.getYears();
-		return new WorkoutGetZone2Response((int)((220-age)*0.6), (int)((220-age)*0.7));
+		return new WorkoutGetZone2Response((int)((220 - age) * 0.6), (int)((220 - age) * 0.7));
 	}
 
-	public WorkoutGetResultResponse getWorkoutResult(String uuid){
+	public WorkoutGetResultResponse getWorkoutResult(String uuid) {
 		Workout workout = workoutRepository.findByUuid(uuid)
-				.orElseThrow(WorkoutNotFoundException::new);
+			.orElseThrow(WorkoutNotFoundException::new);
 
-		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()), FoodFigure.matchFatUsageAndFoodFigure(workout.getFatUsage()));
+		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()),
+			FoodFigure.matchFatUsageAndFoodFigure(workout.getFatUsage()));
 	}
 
+	public void saveWorkout(WorkoutSaveRequest workoutSaveRequest) {
+		User user = JwtUtil.getUser();
+		String uuid = UUID.randomUUID().toString();
+		int fatUsage = getZone2FatUsage(workoutSaveRequest.getKcalUsage()).intValue();
 
+		Workout workout = Workout.of(user, uuid, workoutSaveRequest.getExecTime(), workoutSaveRequest.getKcalUsage(),
+			fatUsage, workoutSaveRequest.getZone2Rate(), workoutSaveRequest.getActivity());
+	}
 }
