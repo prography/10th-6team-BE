@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.response.ApiResponse;
 
@@ -71,5 +72,12 @@ public class GlobalExceptionHandler {
 		log.error("TypeMismatch on parameter '{}': {}", ex.getName(), ex.getMessage(), ex);
 
 		return ApiResponse.error(ErrorCode.INVALID_REQUEST_PARAM, message);
+	}
+
+	@ExceptionHandler(InvalidTokenException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidToken(InvalidTokenException ex) {
+		log.error("Request token is invalid'{}': {}", ex.getErrorCode(), ex.getMessage(), ex);
+
+		return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
 	}
 }
