@@ -1,10 +1,14 @@
 package com.prography.zone_2_be.domain.user.entity;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +29,8 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SQLDelete(sql = "UPDATE user SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class User extends BaseEntity implements UserDetails {
 	@Column(nullable = false, updatable = false)
 	private String oauth2Key;
@@ -52,6 +58,9 @@ public class User extends BaseEntity implements UserDetails {
 	@Column(nullable = false)
 	@Enumerated(EnumType.ORDINAL)
 	private Role role;
+
+	@Column
+	private Instant deletedAt;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
