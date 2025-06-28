@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import com.prography.zone_2_be.domain.user.entity.User;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtUtil {
 	private final SecretKey key;
+	@Getter
 	private final long accessTokenExpiration;
+	@Getter
 	private final long refreshTokenExpiration;
 
 	public JwtUtil(

@@ -10,6 +10,9 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
+import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
+
 import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 	private final UserRepository userRepository;
+	private final AccessTokenRepository accessTokenRepository;
 	private final RefreshTokenHolder refreshTokenHolder;
 	private final JwtUtil jwtUtil;
 
@@ -58,6 +62,7 @@ public class AuthService {
 		String accessToken = this.createAccessToken(user);
 		String refreshToken = this.createRefreshToken(user);
 
+		accessTokenRepository.save(user.getUuid(), accessToken);
 		refreshTokenHolder.putRefreshToken(user.getUuid(), refreshToken);
 
 		return UserAuthResponse.of(accessToken, refreshToken, isNew);
@@ -117,4 +122,22 @@ public class AuthService {
 		return oauth2User.getName();
 	}
 
+	public User getAuthenticatedUser(String requestToken) {
+		// 1. JWT 기본 유효성 검사 (만료, 서명 등)
+		if (!jwtUtil.validateToken(requestToken)) {
+			throw new InvalidTokenException();
+		}
+
+		// 2. Redis에 저장된 토큰과 일치하는지 확인 (화이트리스트 검증)
+		String uuid = jwtUtil.getUuid(requestToken);
+		String storedToken = accessTokenRepository.findByUuid(uuid)
+			.orElseThrow(InvalidTokenException::new);
+
+		if (!storedToken.equals(requestToken)) {
+			throw new InvalidTokenException();
+		}
+
+		// 3. uuid를 사용하여 User 정보를 조회하여 반환
+		return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
+	}
 }

@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -64,10 +65,7 @@ public class SecurityConfiguration {
                         // 이 체인으로 들어온 모든 요청은 인증을 요구합니다.
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(
-                        jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                .addFilterAfter(jwtAuthFilter, ExceptionTranslationFilter.class)
                 // 예외 처리 핸들러를 등록합니다.
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint) // 인증 실패 핸들러
