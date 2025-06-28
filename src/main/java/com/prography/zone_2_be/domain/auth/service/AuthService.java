@@ -1,7 +1,15 @@
 package com.prography.zone_2_be.domain.auth.service;
 
+import java.time.Instant;
 import java.util.Optional;
 
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
@@ -24,6 +32,9 @@ public class AuthService {
 	private final RefreshTokenHolder refreshTokenHolder;
 	private final JwtUtil jwtUtil;
 
+	private final ClientRegistrationRepository clientRegistrationRepository;
+	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+
 	private String createAccessToken(User user) {
 		return jwtUtil.generateAccessToken(user.getOauth2Key(), user.getUuid());
 	}
@@ -32,16 +43,17 @@ public class AuthService {
 		return jwtUtil.generateRefreshToken(user.getUuid());
 	}
 
-	public User createUser(UserAuthRequest request) {
-		User newUser = User.forRegister(request.oauth2Key);
+	public User createUser(String oauth2Key) {
+		User newUser = User.forRegister(oauth2Key);
 		return userRepository.save(newUser);
 	}
 
 	public UserAuthResponse authorize(UserAuthRequest request) {
-		Optional<User> optionalUser = userRepository.findByOauth2Key(request.oauth2Key);
+		String oauth2Key = getOauth2Key(request.getRegistrationId(), request.getOauth2Key());
+		Optional<User> optionalUser = userRepository.findByOauth2Key(oauth2Key);
 		boolean isNew = optionalUser.isEmpty(); // Optional이 비어있으면 새로운 사용자
 
-		User user = optionalUser.orElseGet(() -> createUser(request));
+		User user = optionalUser.orElseGet(() -> createUser(oauth2Key));
 
 		String accessToken = this.createAccessToken(user);
 		String refreshToken = this.createRefreshToken(user);
@@ -82,6 +94,27 @@ public class AuthService {
 			throw new JwtException("Refresh token does not match: " + refreshToken);
 		}
 
+	}
+
+	public String getOauth2Key(String registrationId, String accessToken) {
+
+		ClientRegistration registration =
+			clientRegistrationRepository.findByRegistrationId(registrationId);
+		if (registration == null) {
+			throw new IllegalArgumentException("Unknown OAuth provider: " + registrationId);
+		}
+
+		OAuth2AccessToken token = new OAuth2AccessToken(
+			OAuth2AccessToken.TokenType.BEARER,
+			accessToken,
+			Instant.now(),
+			Instant.now().plusSeconds(60)  // 임시로 60초 만료
+		);
+
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(registration, token);
+
+		OAuth2User oauth2User = delegate.loadUser(userRequest);
+		return oauth2User.getName();
 	}
 
 }
