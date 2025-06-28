@@ -55,7 +55,7 @@ public class WorkoutController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<Void>> saveWorkout(@RequestBody WorkoutSaveRequest workoutSaveRequest) {
+	public ResponseEntity<ApiResponse<Void>> saveWorkout(@RequestBody @Valid WorkoutSaveRequest workoutSaveRequest) {
 		workoutService.saveWorkout(workoutSaveRequest);
 		return ApiResponse.success();
 	}
