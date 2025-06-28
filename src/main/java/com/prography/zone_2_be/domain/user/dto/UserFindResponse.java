@@ -13,7 +13,6 @@ import lombok.Getter;
 @Getter
 public class UserFindResponse {
 	private String uuid;
-	private String email;
 	private LocalDate birth;
 	private int height;
 	private int weight;
@@ -22,7 +21,6 @@ public class UserFindResponse {
 	public static UserFindResponse from(User user) {
 		return UserFindResponse.builder()
 			.uuid(user.getUuid())
-			.email(user.getEmail())
 			.birth(user.getBirth())
 			.height(user.getHeight())
 			.weight(user.getWeight())

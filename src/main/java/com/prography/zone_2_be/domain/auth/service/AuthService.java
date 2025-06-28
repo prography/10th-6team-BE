@@ -33,7 +33,7 @@ public class AuthService {
 	}
 
 	public User createUser(UserAuthRequest request) {
-		User newUser = User.forRegister(request.oauth2Key, request.email);
+		User newUser = User.forRegister(request.oauth2Key);
 		return userRepository.save(newUser);
 	}
 
