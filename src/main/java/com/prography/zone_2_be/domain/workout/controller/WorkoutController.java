@@ -1,5 +1,6 @@
 package com.prography.zone_2_be.domain.workout.controller;
 
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetResultResponse;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +43,12 @@ public class WorkoutController {
 	@GetMapping("/zone2")
 	public ResponseEntity<ApiResponse<WorkoutGetZone2Response>> getZone2(){
 		return ApiResponse.success(workoutService.getZone2());
+	}
+
+	@GetMapping("/result")
+	public ResponseEntity<ApiResponse<WorkoutGetResultResponse>> getWorkoutResult(
+			@Valid @RequestParam("uuid") String uuid) {
+		WorkoutGetResultResponse result = workoutService.getWorkoutResult(uuid);
+		return ApiResponse.success(result);
 	}
 }

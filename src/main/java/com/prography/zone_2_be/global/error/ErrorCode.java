@@ -25,6 +25,9 @@ public enum ErrorCode {
 	// TermAgreement 에러 4300번대
 	REQUIRED_TERMS_NOT_AGREED(HttpStatus.BAD_REQUEST, 4301, "필수 약관에 모두 동의해야 합니다."),
 
+	// Workout 에러 4400번대
+	WORKOUT_NOT_FOUND(HttpStatus.NOT_FOUND, 4401, "해당 UUID의 운동 기록을 찾을 수 없습니다."),
+
 	// Global Server 에러
 	DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 5000, "서버에서 알 수 없는 오류 발생.");
 

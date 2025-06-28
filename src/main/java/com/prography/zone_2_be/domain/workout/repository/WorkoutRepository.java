@@ -37,4 +37,6 @@ public interface WorkoutRepository extends JpaRepository<Workout, Long> {
 		@Param("user") User user,
 		@Param("startTime") Instant startTime,
 		@Param("endTime") Instant endTime);
+
+	Optional<Workout> findByUuid(String uuid);
 }

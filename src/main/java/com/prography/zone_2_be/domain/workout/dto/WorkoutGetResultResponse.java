@@ -2,17 +2,20 @@ package com.prography.zone_2_be.domain.workout.dto;
 
 
 import com.prography.zone_2_be.domain.workout.entity.Workout;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Getter
 public class WorkoutGetResultResponse {
     private Long execTime;
     private Integer zone2Rate;
     private Integer kcalUsage;
     private Integer fatUsage;
-    private FoodFigure foodFigure;
+    private Integer foodFigure;
 
     public static WorkoutGetResultResponse from(Workout workout, FoodFigure foodFigure) {
         return WorkoutGetResultResponse.builder()
@@ -20,7 +23,7 @@ public class WorkoutGetResultResponse {
                 .zone2Rate(workout.getZone2Rate())
                 .kcalUsage(workout.getKcalUsage())
                 .fatUsage(workout.getFatUsage())
-                .foodFigure(foodFigure)
+                .foodFigure(foodFigure.getValue())
                 .build();
     }
 }

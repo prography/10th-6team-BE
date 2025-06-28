@@ -3,6 +3,7 @@ package com.prography.zone_2_be.domain.workout.service;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.workout.dto.*;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
+import com.prography.zone_2_be.domain.workout.exception.WorkoutNotFoundException;
 import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 import org.springframework.data.domain.PageRequest;
@@ -95,4 +96,13 @@ public class WorkoutService {
 		int age = period.getYears();
 		return new WorkoutGetZone2Response((int)((220-age)*0.6), (int)((220-age)*0.7));
 	}
+
+	public WorkoutGetResultResponse getWorkoutResult(String uuid){
+		Workout workout = workoutRepository.findByUuid(uuid)
+				.orElseThrow(WorkoutNotFoundException::new);
+
+		return WorkoutGetResultResponse.from(workout, FoodFigure.matchFatUsageAndFoodFigure(workout.getFatUsage()));
+	}
+
+
 }
