@@ -14,15 +14,15 @@ public class WorkoutGetResultResponse {
     private Long execTime;
     private Integer zone2Rate;
     private Integer kcalUsage;
-    private Integer fatUsage;
+    private Integer relativeFatUsage;
     private Integer foodFigure;
 
-    public static WorkoutGetResultResponse from(Workout workout, FoodFigure foodFigure) {
+    public static WorkoutGetResultResponse from(Workout workout, Integer relativeFatUsage, FoodFigure foodFigure) {
         return WorkoutGetResultResponse.builder()
                 .execTime(workout.getExecTime())
                 .zone2Rate(workout.getZone2Rate())
                 .kcalUsage(workout.getKcalUsage())
-                .fatUsage(workout.getFatUsage())
+                .relativeFatUsage(relativeFatUsage)
                 .foodFigure(foodFigure.getValue())
                 .build();
     }
