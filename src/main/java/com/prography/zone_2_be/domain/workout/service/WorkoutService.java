@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
@@ -124,6 +125,7 @@ public class WorkoutService {
 			FoodFigure.matchFatUsageAndFoodFigure(workout.getFatUsage()));
 	}
 
+	@Transactional
 	public void saveWorkout(WorkoutSaveRequest workoutSaveRequest) {
 		User user = JwtUtil.getUser();
 		String uuid = UUID.randomUUID().toString();
