@@ -24,13 +24,13 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter { // OncePerRequestFilter -> 한 번 실행 보장
     private final JwtUtil jwtUtil;
     private final UserService userService;
-    private final SecurityAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             // Bearer 토큰이 없는 경우, 다음 필터로 바로 진행
+            log.info("jwt token is null, escape jwt filter");
             filterChain.doFilter(request, response);
             return; // 현재 필터의 작업은 여기서 종료
         }
