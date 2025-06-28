@@ -133,5 +133,7 @@ public class WorkoutService {
 
 		Workout workout = Workout.of(user, uuid, workoutSaveRequest.getExecTime(), workoutSaveRequest.getKcalUsage(),
 			fatUsage, workoutSaveRequest.getZone2Rate(), workoutSaveRequest.getActivity());
+
+		workoutRepository.save(workout);
 	}
 }
