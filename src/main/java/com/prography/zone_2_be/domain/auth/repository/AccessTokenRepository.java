@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.time.Duration;
 import java.util.Optional;
 
+import com.prography.zone_2_be.global.utils.JwtUtil;
+
 /**
  * 현재 유효한 Access Token을 Redis에 저장하고 관리합니다. (Whitelist 방식)
  * 키: "accessToken:{uuid}"
@@ -14,9 +16,9 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class AccessTokenRepository {
+    private final JwtUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String KEY_PREFIX = "accessToken:";
-    private static final Duration ACCESS_TOKEN_VALIDITY = Duration.ofHours(1);
 
     /**
      * 사용자의 현재 유효한 Access Token을 저장합니다.
@@ -26,7 +28,7 @@ public class AccessTokenRepository {
      */
     public void save(String uuid, String accessToken) {
         String key = KEY_PREFIX + uuid;
-        redisTemplate.opsForValue().set(key, accessToken, ACCESS_TOKEN_VALIDITY);
+        redisTemplate.opsForValue().set(key, accessToken, jwtUtil.getAccessTokenExpiration());
     }
 
     /**
