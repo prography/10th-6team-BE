@@ -37,15 +37,15 @@ public class WorkoutService {
 	private final UserRepository userRepository;
 
 	private Integer getRelativeFatUsage(Integer kcalUsage) {
-		return (int)(getZone2FatUsage(kcalUsage) - getZone4FatUsage(kcalUsage));
+		return (getZone2FatUsage(kcalUsage) - getZone4FatUsage(kcalUsage));
 	}
 
-	private Double getZone2FatUsage(Integer kcalUsage) {
-		return (kcalUsage * 0.65) / 9;
+	private Integer getZone2FatUsage(Integer kcalUsage) {
+		return (int) (kcalUsage * 0.65) / 9;
 	}
 
-	private Double getZone4FatUsage(Integer kcalUsage) {
-		return (kcalUsage * 1.5 * 0.15) / 9;
+	private Integer getZone4FatUsage(Integer kcalUsage) {
+		return (int) (kcalUsage * 1.5 * 0.15) / 9;
 	}
 
 	public WorkoutGetFatUsageResponse getFatUsage(Integer kcalUsage) {
@@ -121,7 +121,7 @@ public class WorkoutService {
 		Workout workout = workoutRepository.findByUuid(uuid)
 			.orElseThrow(WorkoutNotFoundException::new);
 
-		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()),
+		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()), getZone2FatUsage(workout.getKcalUsage()), getZone4FatUsage(workout.getKcalUsage()),
 			FoodFigure.matchFatUsageAndFoodFigure(workout.getFatUsage()));
 	}
 
