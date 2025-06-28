@@ -3,6 +3,7 @@ package com.prography.zone_2_be.domain.notice.controller;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,18 +17,22 @@ import com.prography.zone_2_be.global.constant.CommonConst;
 import com.prography.zone_2_be.global.response.ApiResponse;
 import com.prography.zone_2_be.global.response.SliceResponse;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/notice")
 @RequiredArgsConstructor
+@Validated
 public class NoticeController {
 
 	private final NoticeService noticeService;
 
 	@GetMapping
 	public ResponseEntity<ApiResponse<SliceResponse<NoticeFindAllResponse>>> findAllNotice(
-		@RequestParam(defaultValue = "0") int pageNumber) {
+		@RequestParam(defaultValue = "0") @Min(value = 0, message = "pageNumber는 0 이상이어야 합니다.") int pageNumber
+	) {
 		Pageable pageable = PageRequest.of(pageNumber, CommonConst.DEFAULT_PAGE_SIZE);
 		SliceResponse<NoticeFindAllResponse> response = noticeService.findAllNotice(pageable);
 
@@ -36,7 +41,9 @@ public class NoticeController {
 
 	@GetMapping("/{noticeId}")
 	public ResponseEntity<ApiResponse<NoticeFindResponse>> findNotice(
-		@PathVariable("noticeId") Long noticeId) {
+		@PathVariable("noticeId")
+		@Positive(message = "noticeId는 1 이상의 양수여야 합니다.") Long noticeId
+	) {
 		NoticeFindResponse response = noticeService.findNotice(noticeId);
 		return ApiResponse.success(response);
 	}
