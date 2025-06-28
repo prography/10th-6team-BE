@@ -139,4 +139,13 @@ public class AuthService {
 		// 3. uuid를 사용하여 User 정보를 조회하여 반환
 		return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
 	}
+
+	public void logout(){
+		User user = JwtUtil.getUser();
+
+		accessTokenRepository.delete(user.getUuid());
+		refreshTokenRepository.delete(user.getUuid());
+	}
+
+
 }
