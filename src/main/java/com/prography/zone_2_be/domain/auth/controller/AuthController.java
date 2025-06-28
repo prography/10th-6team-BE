@@ -35,4 +35,10 @@ public class AuthController {
 		@Valid @RequestBody TokenRefreshRequest request) {
 		return ApiResponse.success(authService.refreshToken(request));
 	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<ApiResponse<Void>> logoutUser() {
+		authService.logout();
+		return ApiResponse.success();
+	}
 }
