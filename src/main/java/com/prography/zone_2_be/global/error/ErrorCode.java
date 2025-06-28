@@ -12,6 +12,8 @@ public enum ErrorCode {
 	INVALID_REQUEST_PARAM(HttpStatus.BAD_REQUEST, 1000, "올바르지 않은 요청 파라미터 입니다."),
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 1001, "인증에 실패했습니다."),
 	FORBIDDEN(HttpStatus.FORBIDDEN, 1003, "접근 권한이 없습니다."),
+	TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, 1004, "해당 토큰을 찾을 수 없습니다."),
+	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, 1004, "유효하지 않은 토큰입니다."),
 
 	// User 에러 4000번대
 	USER_NOT_FOUND(HttpStatus.BAD_REQUEST, 4000, "해당 유저를 찾을 수 없습니다."),
