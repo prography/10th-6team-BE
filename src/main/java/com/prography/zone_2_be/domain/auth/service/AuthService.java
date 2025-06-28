@@ -19,13 +19,13 @@ import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
+import com.prography.zone_2_be.domain.auth.repository.RefreshTokenRepository;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
+import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.utils.JwtUtil;
-import com.prography.zone_2_be.global.utils.RefreshTokenHolder;
 
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 	private final UserRepository userRepository;
 	private final AccessTokenRepository accessTokenRepository;
-	private final RefreshTokenHolder refreshTokenHolder;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtUtil jwtUtil;
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
@@ -63,7 +63,7 @@ public class AuthService {
 		String refreshToken = this.createRefreshToken(user);
 
 		accessTokenRepository.save(user.getUuid(), accessToken);
-		refreshTokenHolder.putRefreshToken(user.getUuid(), refreshToken);
+		refreshTokenRepository.save(user.getUuid(), refreshToken);
 
 		return UserAuthResponse.of(accessToken, refreshToken, isNew);
 	}
@@ -81,22 +81,22 @@ public class AuthService {
 		String newAccessToken = this.createAccessToken(user);
 		String newRefreshToken = this.createRefreshToken(user);
 
-		refreshTokenHolder.removeRefreshToken(uuid);
-		refreshTokenHolder.putRefreshToken(uuid, newRefreshToken);
+		refreshTokenRepository.delete(uuid);
+		refreshTokenRepository.save(uuid, newRefreshToken);
 
 		return TokenRefreshResponse.of(newAccessToken, newRefreshToken);
 	}
 
 	private void checkRefreshToken(final String refreshToken) {
 		if (!jwtUtil.validateToken(refreshToken))
-			throw new JwtException("Invalid refresh token: " + refreshToken);
+			throw new InvalidTokenException();
 
 		String uuid = jwtUtil.getUuid(refreshToken);
 		// refresh token id 조회
-		String findToken = refreshTokenHolder.getRefreshToken(uuid);
+		String findToken = refreshTokenRepository.findByUuid(uuid).orElseThrow(() -> new InvalidTokenException (ErrorCode.TOKEN_NOT_FOUND));
 
 		if (!findToken.equals(refreshToken)) {
-			throw new JwtException("Refresh token does not match: " + refreshToken);
+			throw new InvalidTokenException();
 		}
 
 	}
@@ -130,8 +130,7 @@ public class AuthService {
 
 		// 2. Redis에 저장된 토큰과 일치하는지 확인 (화이트리스트 검증)
 		String uuid = jwtUtil.getUuid(requestToken);
-		String storedToken = accessTokenRepository.findByUuid(uuid)
-			.orElseThrow(InvalidTokenException::new);
+		String storedToken = accessTokenRepository.findByUuid(uuid).orElseThrow(() -> new InvalidTokenException (ErrorCode.TOKEN_NOT_FOUND));
 
 		if (!storedToken.equals(requestToken)) {
 			throw new InvalidTokenException();
