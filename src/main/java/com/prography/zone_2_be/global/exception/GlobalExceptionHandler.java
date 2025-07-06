@@ -7,11 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestValueException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
+import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.response.ApiResponse;
 
@@ -79,5 +81,12 @@ public class GlobalExceptionHandler {
 		log.error("Request token is invalid'{}': {}", ex.getErrorCode(), ex.getMessage(), ex);
 
 		return ApiResponse.error(ex.getErrorCode(), ex.getMessage());
+	}
+
+	@ExceptionHandler(MissingRequestValueException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidHeader(MissingRequestValueException ex) {
+		log.error("request header is missing: {}", ex.getMessage(), ex);
+
+		return ApiResponse.error(ErrorCode.MISSING_REQUIRED_VALUE, ex.getMessage());
 	}
 }
