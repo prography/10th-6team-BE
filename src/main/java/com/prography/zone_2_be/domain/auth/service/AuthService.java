@@ -9,16 +9,17 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
-import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
-
 import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
+import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
+import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
+import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
 import com.prography.zone_2_be.domain.auth.repository.RefreshTokenRepository;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
@@ -27,9 +28,11 @@ import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 	private final UserRepository userRepository;
 	private final AccessTokenRepository accessTokenRepository;
@@ -52,8 +55,8 @@ public class AuthService {
 		return userRepository.save(newUser);
 	}
 
-	public UserAuthResponse authorize(UserAuthRequest request) {
-		String oauth2Key = getOauth2Key(request.getRegistrationId(), request.getOauth2Key());
+	public UserAuthResponse authorize(UserAuthRequest request, String oauthToken) {
+		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
 		Optional<User> optionalUser = userRepository.findByOauth2Key(oauth2Key);
 		boolean isNew = optionalUser.isEmpty(); // Optional이 비어있으면 새로운 사용자
 
@@ -93,7 +96,8 @@ public class AuthService {
 
 		String uuid = jwtUtil.getUuid(refreshToken);
 		// refresh token id 조회
-		String findToken = refreshTokenRepository.findByUuid(uuid).orElseThrow(() -> new InvalidTokenException (ErrorCode.TOKEN_NOT_FOUND, "요청한 refresh token이 존재하지 않습니다."));
+		String findToken = refreshTokenRepository.findByUuid(uuid)
+			.orElseThrow(() -> new InvalidTokenException(ErrorCode.TOKEN_NOT_FOUND, "요청한 refresh token이 존재하지 않습니다."));
 
 		if (!findToken.equals(refreshToken)) {
 			throw new InvalidTokenException("유효하지 않은 refresh token 입니다.");
@@ -118,8 +122,14 @@ public class AuthService {
 
 		OAuth2UserRequest userRequest = new OAuth2UserRequest(registration, token);
 
-		OAuth2User oauth2User = delegate.loadUser(userRequest);
-		return oauth2User.getName();
+		try {
+			OAuth2User oauth2User = delegate.loadUser(userRequest);
+			return oauth2User.getName();
+
+		} catch (OAuth2AuthenticationException e) {
+			log.error("failed to load oauth2 user: {}", e.getMessage());
+			throw new OAuth2LoadException();
+		}
 	}
 
 	public User getAuthenticatedUser(String requestToken) {
@@ -130,7 +140,8 @@ public class AuthService {
 
 		// 2. Redis에 저장된 토큰과 일치하는지 확인 (화이트리스트 검증)
 		String uuid = jwtUtil.getUuid(requestToken);
-		String storedToken = accessTokenRepository.findByUuid(uuid).orElseThrow(() -> new InvalidTokenException (ErrorCode.TOKEN_NOT_FOUND, "요청한 access token이 존재하지 않습니다."));
+		String storedToken = accessTokenRepository.findByUuid(uuid)
+			.orElseThrow(() -> new InvalidTokenException(ErrorCode.TOKEN_NOT_FOUND, "요청한 access token이 존재하지 않습니다."));
 
 		if (!storedToken.equals(requestToken)) {
 			throw new InvalidTokenException("유효하지 않은 access token 입니다.");
@@ -140,12 +151,11 @@ public class AuthService {
 		return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
 	}
 
-	public void logout(){
+	public void logout() {
 		User user = JwtUtil.getUser();
 
 		accessTokenRepository.delete(user.getUuid());
 		refreshTokenRepository.delete(user.getUuid());
 	}
-
 
 }

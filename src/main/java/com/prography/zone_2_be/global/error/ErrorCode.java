@@ -14,6 +14,8 @@ public enum ErrorCode {
 	FORBIDDEN(HttpStatus.FORBIDDEN, 1003, "접근 권한이 없습니다."),
 	TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, 1004, "해당 토큰을 찾을 수 없습니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, 1004, "유효하지 않은 토큰입니다."),
+	LOAD_OAUTH2_USER_FAIL(HttpStatus.BAD_REQUEST, 1005, "oauth2유저를 확인할 수 없습니다."),
+	MISSING_REQUIRED_VALUE(HttpStatus.BAD_REQUEST, 1006, "필수 요청 값이 누락되었습니다."),
 
 	// User 에러 4000번대
 	USER_NOT_FOUND(HttpStatus.BAD_REQUEST, 4000, "해당 유저를 찾을 수 없습니다."),
