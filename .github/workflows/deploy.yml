@@ -26,13 +26,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Generate application.yml
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.APPLICATION_PROPERTIES }}" \
-              > src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION_TEST_PROPERTIES }}" \
-              > src/main/resources/application-test.yml
+      #      - name: Generate application.yml
+      #        run: |
+      #          mkdir -p src/main/resources
+      #          echo "${{ secrets.APPLICATION_PROPERTIES }}" \
+      #              > src/main/resources/application.yml
+      #          echo "${{ secrets.APPLICATION_TEST_PROPERTIES }}" \
+      #              > src/main/resources/application-test.yml
 
       - name: Set up Java 17 (Temurin) with Gradle cache
         uses: actions/setup-java@v4
