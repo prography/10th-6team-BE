@@ -84,6 +84,9 @@ public class AuthService {
 		String newAccessToken = this.createAccessToken(user);
 		String newRefreshToken = this.createRefreshToken(user);
 
+		accessTokenRepository.delete(uuid);
+		accessTokenRepository.save(uuid, newAccessToken);
+
 		refreshTokenRepository.delete(uuid);
 		refreshTokenRepository.save(uuid, newRefreshToken);
 
