@@ -72,14 +72,12 @@ public class AuthService {
 	}
 
 	public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
-		// refresh token 유효성 검증
-		String refreshToken = request.getRefreshToken();
-		checkRefreshToken(refreshToken);
-
-		String uuid = jwtUtil.getUuid(refreshToken);
-
+		String uuid = jwtUtil.getUuid(request.getAccessToken());
 		User user = userRepository.findByUuid(uuid)
 			.orElseThrow(UserNotFoundException::new);
+
+		// refresh token 유효성 검증
+		checkRefreshToken(request.getRefreshToken());
 
 		String newAccessToken = this.createAccessToken(user);
 		String newRefreshToken = this.createRefreshToken(user);
