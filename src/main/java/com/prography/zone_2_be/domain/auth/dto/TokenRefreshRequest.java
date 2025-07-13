@@ -8,5 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class TokenRefreshRequest {
     @NotNull
+    private final String accessToken;
+    @NotNull
     private final String refreshToken;
 }
