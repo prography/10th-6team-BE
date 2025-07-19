@@ -5,6 +5,10 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import com.prography.zone_2_be.domain.user.entity.User;
+import com.prography.zone_2_be.global.error.ErrorCode;
+import com.prography.zone_2_be.global.exception.CustomException;
+
+import io.jsonwebtoken.JwtException;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,27 +65,26 @@ public class JwtUtil {
 	public String getUuid(String token) {
 		return parseClaims(token).getId();
 	}
-
-	public String getOAuth2Key(String token) {
-		return parseClaims(token).getSubject();
-	}
+	//
+	// public String getOAuth2Key(String token) {
+	// 	return parseClaims(token).getSubject();
+	// }
 
 	public Claims parseClaims(String token) {
-		return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+		try {
+			return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+		} catch (Exception e) {
+			log.error("JWT Token parsing error: {}", e.getMessage());
+			throw new CustomException(ErrorCode.INVALID_TOKEN, e.getMessage());
+		}
 	}
 
 	public boolean validateToken(String token) {
 		try {
 			Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
 			return true;
-		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-			log.info("Invalid JWT Token", e);
-		} catch (ExpiredJwtException e) {
-			log.info("Expired JWT Token", e);
-		} catch (UnsupportedJwtException e) {
-			log.info("Unsupported JWT Token", e);
-		} catch (IllegalArgumentException e) {
-			log.info("JWT claims string is empty.", e);
+		} catch (Exception e) {
+			log.error("JWT Token parsing error: {}", e.getMessage());
 		}
 		return false;
 	}
