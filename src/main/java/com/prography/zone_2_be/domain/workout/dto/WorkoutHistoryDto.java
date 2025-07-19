@@ -16,17 +16,19 @@ import lombok.ToString;
 @ToString
 @Builder
 public class WorkoutHistoryDto {
+	private String uuid;
 	private Long execTime;
 	private Integer kcalUsage;
 	private Integer fatUsage;
-	private Activity activity;
+	private Integer activity;
 
 	public static WorkoutHistoryDto from(Workout workout) {
 		return WorkoutHistoryDto.builder()
+			.uuid(workout.getUuid())
 			.execTime(workout.getExecTime())
 			.kcalUsage(workout.getKcalUsage())
 			.fatUsage(workout.getFatUsage())
-			.activity(workout.getActivity())
+			.activity(workout.getActivity().getValue())
 			.build();
 
 	}
