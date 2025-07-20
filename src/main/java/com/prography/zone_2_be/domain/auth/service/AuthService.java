@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
@@ -55,22 +56,35 @@ public class AuthService {
 		return userRepository.save(newUser);
 	}
 
+	@Transactional
 	public UserAuthResponse authorize(UserAuthRequest request, String oauthToken) {
-		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
-		Optional<User> optionalUser = userRepository.findByOauth2Key(oauth2Key);
-		boolean isNew = optionalUser.isEmpty(); // Optional이 비어있으면 새로운 사용자
+		// String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
+		String oauth2Key = "key";
 
-		User user = optionalUser.orElseGet(() -> createUser(oauth2Key));
+		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
 
-		String accessToken = this.createAccessToken(user);
-		String refreshToken = this.createRefreshToken(user);
+		boolean isNew = userOpt.map(u -> u.getBirth() == null || u.getGender() == null)
+			.orElse(true);
 
-		accessTokenRepository.save(user.getUuid(), accessToken);
-		refreshTokenRepository.save(user.getUuid(), refreshToken);
+		User user = userOpt.orElseGet(() -> createUser(oauth2Key));
 
-		return UserAuthResponse.of(accessToken, refreshToken, isNew);
+		Optional<String> accessTokenOpt = accessTokenRepository.findByUuid(user.getUuid());
+		Optional<String> refreshTokenOpt = refreshTokenRepository.findByUuid(user.getUuid());
+
+		if (accessTokenOpt.isPresent() && refreshTokenOpt.isPresent()) {
+			return UserAuthResponse.of(accessTokenOpt.get(), refreshTokenOpt.get(), isNew);
+		}
+
+		String newAccessToken = createAccessToken(user);
+		String newRefreshToken = createRefreshToken(user);
+
+		accessTokenRepository.save(user.getUuid(), newAccessToken);
+		refreshTokenRepository.save(user.getUuid(), newRefreshToken);
+
+		return UserAuthResponse.of(newAccessToken, newRefreshToken, isNew);
 	}
 
+	@Transactional
 	public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
 		String uuid = jwtUtil.getUuid(request.getAccessToken());
 		User user = userRepository.findByUuid(uuid)
@@ -152,6 +166,7 @@ public class AuthService {
 		return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
 	}
 
+	@Transactional
 	public void logout() {
 		User user = JwtUtil.getUser();
 
