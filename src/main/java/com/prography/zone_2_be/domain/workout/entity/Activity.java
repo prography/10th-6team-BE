@@ -1,5 +1,7 @@
 package com.prography.zone_2_be.domain.workout.entity;
 
+import lombok.Getter;
+
 public enum Activity {
 	Walking(0),
 	Jogging(1),
@@ -8,13 +10,10 @@ public enum Activity {
 	Pilates(4),
 	Extra(99);
 
+	@Getter
 	private final int value;
 
 	Activity(int value) {
 		this.value = value;
-	}
-
-	public int getValue() {
-		return this.value;
 	}
 }
