@@ -4,23 +4,19 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
-import com.prography.zone_2_be.domain.user.entity.User;
-import com.prography.zone_2_be.global.error.ErrorCode;
-import com.prography.zone_2_be.global.exception.CustomException;
-
-import io.jsonwebtoken.JwtException;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.prography.zone_2_be.domain.user.entity.User;
+import com.prography.zone_2_be.global.error.ErrorCode;
+import com.prography.zone_2_be.global.exception.CustomException;
+
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

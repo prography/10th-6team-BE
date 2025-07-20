@@ -1,5 +1,8 @@
 package com.prography.zone_2_be.domain.workout;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +33,9 @@ public class WorkoutServiceTest {
 	@Autowired
 	private JwtUtil jwtUtil;
 
+	/**
+	 * 이 테스트를 진행하기 위해서는 created_at 컬럼의 CreatedDate 어노테이션을 제거 및 Setter 어노테이션을 추가해야 합니다.
+	 */
 	@Test
 	public void createDummyDataWithAuthKey() {
 		// 1. 기준이 될 사용자를 한 번 조회합니다.
@@ -80,6 +86,14 @@ public class WorkoutServiceTest {
 				activity
 			);
 
+			// 1. 유닉스 초 단위로 날짜 범위의 시작과 끝을 정의합니다.
+			long startEpochSecond = LocalDateTime.of(2025, 6, 1, 0, 0).toEpochSecond(ZoneOffset.UTC);
+			long endEpochSecond = LocalDateTime.of(2025, 7, 31, 0, 0).toEpochSecond(ZoneOffset.UTC);
+
+			// 2. 해당 범위 내에서 랜덤 long 값을 생성합니다.
+			long randomEpochSecond = ThreadLocalRandom.current().nextLong(startEpochSecond, endEpochSecond);
+
+			workout.setCreatedAt(Instant.ofEpochSecond(randomEpochSecond));
 			// 7. 생성된 엔티티를 저장합니다.
 			workoutRepository.save(workout);
 		}
