@@ -6,7 +6,7 @@ public enum Activity {
 	Cycling(2),
 	StairClimbing(3),
 	Pilates(4),
-	MountainClimbing(5);
+	Extra(99);
 
 	private final int value;
 
