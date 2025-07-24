@@ -1,11 +1,11 @@
 package com.prography.zone_2_be.domain.auth.service;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -14,6 +14,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
@@ -41,7 +43,7 @@ public class AuthService {
 	private final JwtUtil jwtUtil;
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
+	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
 
 	private String createAccessToken(User user) {
 		return jwtUtil.generateAccessToken(user.getOauth2Key(), user.getUuid());
@@ -58,8 +60,7 @@ public class AuthService {
 
 	@Transactional
 	public UserAuthResponse authorize(UserAuthRequest request, String oauthToken) {
-		// String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
-		String oauth2Key = "key";
+		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
 
 		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
 
@@ -126,6 +127,16 @@ public class AuthService {
 			clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (registration == null) {
 			throw new IllegalArgumentException("Unknown OAuth provider: " + registrationId);
+		}
+
+		//TODO: 리팩 토링
+		if ("apple".equals(registrationId)) {
+			try {
+				JWTClaimsSet claims = JWTParser.parse(accessToken).getJWTClaimsSet();
+				return claims.getSubject();
+			} catch (ParseException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		OAuth2AccessToken token = new OAuth2AccessToken(
