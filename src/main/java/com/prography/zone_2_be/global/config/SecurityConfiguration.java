@@ -34,7 +34,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http
                 // 이 체인은 /api/v1/health, /api/v1/auth/** 경로의 요청만 처리하도록 지정합니다.
-                .securityMatcher("/api/v1/health", "/api/v1/auth", "api/v1/auth/refresh")
+                .securityMatcher("/api/v1/health", "/api/v1/auth", "/api/v1/auth/refresh")
                 .authorizeHttpRequests(req -> req
                         // 해당 경로의 모든 요청을 허용합니다.
                         .anyRequest().permitAll()
