@@ -87,17 +87,18 @@ public class AuthService {
 
 	@Transactional
 	public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
-		String uuid = jwtUtil.getUuid(request.getAccessToken());
+		String refreshToken = request.getRefreshToken();
+
+		checkRefreshToken(refreshToken);
+
+		String uuid = jwtUtil.getUuid(refreshToken);
 		User user = userRepository.findByUuid(uuid)
 			.orElseThrow(UserNotFoundException::new);
 
-		// refresh token 유효성 검증
-		checkRefreshToken(request.getRefreshToken());
 
 		String newAccessToken = this.createAccessToken(user);
 		String newRefreshToken = this.createRefreshToken(user);
 
-		accessTokenRepository.delete(uuid);
 		accessTokenRepository.save(uuid, newAccessToken);
 
 		refreshTokenRepository.delete(uuid);
