@@ -1,5 +1,6 @@
 package com.prography.zone_2_be.domain.auth.repository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +19,7 @@ import com.prography.zone_2_be.global.utils.JwtUtil;
  */
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class RefreshTokenRepository {
 	private final JwtUtil jwtUtil;
 	private final RedisTemplate<String, Object> redisTemplate;
@@ -32,6 +34,7 @@ public class RefreshTokenRepository {
 	 */
 	public void save(String uuid, String refreshToken) {
 		String key = KEY_PREFIX + uuid;
+		log.info("save refresh token for key: {}", key);
 		Duration expiration = Duration.ofMillis(jwtUtil.getRefreshTokenExpiration());
 		redisTemplate.opsForValue().set(key, refreshToken, expiration);
 	}
@@ -43,6 +46,7 @@ public class RefreshTokenRepository {
 	 */
 	public Optional<String> findByUuid(String uuid) {
 		String key = KEY_PREFIX + uuid;
+		log.info("find refresh token for key: {}", key);
 		String refreshToken = (String) redisTemplate.opsForValue().get(key);
 		return Optional.ofNullable(refreshToken);
 	}
@@ -53,6 +57,7 @@ public class RefreshTokenRepository {
 	 */
 	public void delete(String uuid) {
 		String key = KEY_PREFIX + uuid;
+		log.info("Deleting refresh token for key: {}", key);
 		redisTemplate.delete(key);
 	}
 }
