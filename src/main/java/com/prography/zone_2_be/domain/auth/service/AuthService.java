@@ -61,6 +61,7 @@ public class AuthService {
 	@Transactional
 	public UserAuthResponse authorize(UserAuthRequest request, String oauthToken) {
 		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
+		// String oauth2Key = "key";
 
 		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
 
@@ -113,11 +114,12 @@ public class AuthService {
 
 		String uuid = jwtUtil.getUuid(refreshToken);
 		// refresh token id 조회
-		String findToken = refreshTokenRepository.findByUuid(uuid)
+		String storedToken = refreshTokenRepository.findByUuid(uuid)
 			.orElseThrow(() -> new InvalidTokenException(ErrorCode.TOKEN_NOT_FOUND, "요청한 refresh token이 존재하지 않습니다."));
 
-		if (!findToken.equals(refreshToken)) {
-			throw new InvalidTokenException("유효하지 않은 refresh token 입니다.");
+		if (!storedToken.equals(refreshToken)) {
+			log.error("해당 refresh token을 확인할 수 없습니다.. find : {}, given {}", storedToken, refreshToken);
+			throw new InvalidTokenException("해당 refresh token을 확인할 수 없습니다.");
 		}
 
 	}
@@ -159,19 +161,20 @@ public class AuthService {
 		}
 	}
 
-	public User getAuthenticatedUser(String requestToken) {
+	public User getAuthenticatedUser(String accessToken) {
 		// 1. JWT 기본 유효성 검사 (만료, 서명 등)
-		if (!jwtUtil.validateToken(requestToken)) {
+		if (!jwtUtil.validateToken(accessToken)) {
 			throw new InvalidTokenException("유효하지 않은 access token 입니다.");
 		}
 
 		// 2. Redis에 저장된 토큰과 일치하는지 확인 (화이트리스트 검증)
-		String uuid = jwtUtil.getUuid(requestToken);
+		String uuid = jwtUtil.getUuid(accessToken);
 		String storedToken = accessTokenRepository.findByUuid(uuid)
 			.orElseThrow(() -> new InvalidTokenException(ErrorCode.TOKEN_NOT_FOUND, "요청한 access token이 존재하지 않습니다."));
 
-		if (!storedToken.equals(requestToken)) {
-			throw new InvalidTokenException("유효하지 않은 access token 입니다.");
+		if (!storedToken.equals(accessToken)) {
+			log.error("해당 access token을 확인할 수 없습니다.. find : {}, given {}", storedToken, accessToken);
+			throw new InvalidTokenException("해당 access token을 확인할 수 없습니다.");
 		}
 
 		// 3. uuid를 사용하여 User 정보를 조회하여 반환
