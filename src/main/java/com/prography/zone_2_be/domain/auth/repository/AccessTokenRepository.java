@@ -2,9 +2,7 @@ package com.prography.zone_2_be.domain.auth.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
@@ -33,7 +31,7 @@ public class AccessTokenRepository {
      */
     public void save(String uuid, String accessToken) {
         String key = KEY_PREFIX + uuid;
-        log.info("save access token for key: {}", key);
+        log.info("access_token: save key: {}", key);
         Duration expiration = Duration.ofMillis(jwtUtil.getAccessTokenExpiration());
         redisTemplate.opsForValue().set(key, accessToken, expiration);
     }
@@ -45,7 +43,7 @@ public class AccessTokenRepository {
      */
     public Optional<String> findByUuid(String uuid) {
         String key = KEY_PREFIX + uuid;
-        log.info("find access token for key: {}", key);
+        log.info("access_token: find key: {}", key);
         String accessToken = (String) redisTemplate.opsForValue().get(key);
         return Optional.ofNullable(accessToken);
     }
@@ -56,7 +54,7 @@ public class AccessTokenRepository {
      */
     public void delete(String uuid) {
         String key = KEY_PREFIX + uuid;
-        log.info("Deleting access token for key: {}", key);
+        log.info("access_token: delete key: {}", key);
         redisTemplate.delete(key);
     }
 }
