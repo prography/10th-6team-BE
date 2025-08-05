@@ -38,6 +38,8 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           REDIS_HOST: ${{ secrets.REDIS_HOST }}
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_USER: ${{ secrets.REDIS_USER }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
           KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
