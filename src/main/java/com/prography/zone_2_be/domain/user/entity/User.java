@@ -45,11 +45,11 @@ public class User extends BaseEntity implements UserDetails {
 
 	@Column
 	@Setter
-	private int height;
+	private Integer height;
 
 	@Column
 	@Setter
-	private int weight;
+	private Integer weight;
 
 	@Column
 	@Setter
