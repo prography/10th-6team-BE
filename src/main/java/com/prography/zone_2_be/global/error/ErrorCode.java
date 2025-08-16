@@ -19,6 +19,7 @@ public enum ErrorCode {
 
 	// User 에러 4000번대
 	USER_NOT_FOUND(HttpStatus.BAD_REQUEST, 4000, "해당 유저를 찾을 수 없습니다."),
+	ALREADY_USER_EXISTS(HttpStatus.BAD_REQUEST, 4001, "이미 존재하는 유저입니다."),
 
 	// Notice 에러 4100번대
 	NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, 4100, "해당 ID의 공지사항을 찾을 수 없습니다."),

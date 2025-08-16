@@ -30,12 +30,12 @@ public class TermAgreementController {
 
 	private final TermAgreementService termAgreementService;
 
-	@PostMapping("/agree-all")
-	public ResponseEntity<ApiResponse<Void>> saveAllTermAgreement(
-		@RequestBody @Valid TermAgreementSaveAllRequest request) {
-		termAgreementService.saveAllTermAgreement(request.getTermAgreementSaveRequests());
-		return ApiResponse.success();
-	}
+	// @PostMapping("/agree-all")
+	// public ResponseEntity<ApiResponse<Void>> saveAllTermAgreement(
+	// 	@RequestBody @Valid TermAgreementSaveAllRequest request) {
+	// 	termAgreementService.saveAllTermAgreement(request.getTermAgreementSaveRequests());
+	// 	return ApiResponse.success();
+	// }
 
 	@GetMapping("/status")
 	public ResponseEntity<ApiResponse<List<TermAgreementFindResponse>>> getTermAgreementStatus(

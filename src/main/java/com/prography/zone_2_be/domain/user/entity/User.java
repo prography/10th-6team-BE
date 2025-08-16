@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.prography.zone_2_be.domain.auth.dto.UserRegisterRequest;
 import com.prography.zone_2_be.domain.user.dto.UserUpdateRequest;
 import com.prography.zone_2_be.global.entity.BaseEntity;
 
@@ -101,17 +102,31 @@ public class User extends BaseEntity implements UserDetails {
 	}
 
 	@Builder
-	public User(String oauth2Key, String uuid, Role role) {
+	public User(String oauth2Key, String uuid, Role role, LocalDate birth, Gender gender, Integer height, Integer weight) {
 		this.oauth2Key = oauth2Key;
 		this.role = role;// Default role is User
 		this.uuid = uuid;
+		this.birth = birth;
+		this.gender = gender;
+
+		if (weight != null) {
+			this.weight = weight;
+		}
+
+		if (height != null) {
+			this.height = height;
+		}
 	}
 
-	public static User forRegister(String oauth2Key) {
+	public static User forRegister(UserRegisterRequest dto, String oauth2Key) {
 		return User.builder()
 			.oauth2Key(oauth2Key)
 			.role(Role.User) // Default role is User
 			.uuid(UUID.randomUUID().toString())
+			.birth(dto.birth)
+			.gender(dto.gender)
+			.weight(dto.weight)
+			.height(dto.height)
 			.build();
 	}
 

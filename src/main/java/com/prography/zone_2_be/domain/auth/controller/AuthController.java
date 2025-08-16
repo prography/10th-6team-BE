@@ -31,7 +31,7 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<UserAuthResponse>> registerUser(
 		@Valid @RequestBody UserRegisterRequest request,
 		@RequestHeader(value = "authorization", required = true) String oauthToken) {
-		return ApiResponse.success(authService.authorize(request, oauthToken));
+		return ApiResponse.success(authService.register(request, oauthToken));
 	}
 
 	// @PostMapping("/login")

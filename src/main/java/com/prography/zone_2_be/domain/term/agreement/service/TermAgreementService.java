@@ -31,6 +31,10 @@ public class TermAgreementService {
 	public void saveAllTermAgreement(List<TermAgreementSaveRequest> requests) {
 		User user = JwtUtil.getUser();
 
+		saveAllTermAgreement(user, requests);
+	}
+
+	public void saveAllTermAgreement(User user, List<TermAgreementSaveRequest> requests) {
 		validateAllAgreed(requests);
 
 		List<Term> terms = findTermsByIds(extractTermIds(requests));
