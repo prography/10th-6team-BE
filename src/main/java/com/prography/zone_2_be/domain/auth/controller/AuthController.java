@@ -1,7 +1,6 @@
 package com.prography.zone_2_be.domain.auth.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -10,8 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
-import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
+import com.prography.zone_2_be.domain.auth.dto.UserLoginRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
+import com.prography.zone_2_be.domain.auth.dto.UserRegisterRequest;
 import com.prography.zone_2_be.domain.auth.service.AuthService;
 import com.prography.zone_2_be.global.response.ApiResponse;
 
@@ -27,12 +27,17 @@ public class AuthController {
 
 	private final AuthService authService;
 
-	@PostMapping("")
-	public ResponseEntity<ApiResponse<UserAuthResponse>> authUser(
-		@Valid @RequestBody UserAuthRequest request,
+	@PostMapping("/register")
+	public ResponseEntity<ApiResponse<UserAuthResponse>> registerUser(
+		@Valid @RequestBody UserRegisterRequest request,
 		@RequestHeader(value = "authorization", required = true) String oauthToken) {
 		return ApiResponse.success(authService.authorize(request, oauthToken));
 	}
+
+	// @PostMapping("/login")
+	// public ResponseEntity<ApiResponse<UserAuthResponse>> loginUser{
+	//
+	// }
 
 	@PostMapping("/refresh")
 	public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(

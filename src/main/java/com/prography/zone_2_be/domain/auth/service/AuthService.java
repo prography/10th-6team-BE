@@ -18,8 +18,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
-import com.prography.zone_2_be.domain.auth.dto.UserAuthRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
+import com.prography.zone_2_be.domain.auth.dto.UserRegisterRequest;
 import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
 import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
@@ -59,7 +59,7 @@ public class AuthService {
 	}
 
 	@Transactional
-	public UserAuthResponse authorize(UserAuthRequest request, String oauthToken) {
+	public UserAuthResponse authorize(UserRegisterRequest request, String oauthToken) {
 		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
 		// String oauth2Key = "key";
 
