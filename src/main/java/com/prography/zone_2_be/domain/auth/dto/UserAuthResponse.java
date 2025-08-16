@@ -7,20 +7,17 @@ import lombok.Getter;
 public class UserAuthResponse {
 	private final String accessToken;
 	private final String refreshToken;
-	private final boolean isNew;
 
 	@Builder
-	private UserAuthResponse(String accessToken, String refreshToken, boolean isNew) {
+	private UserAuthResponse(String accessToken, String refreshToken) {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
-		this.isNew = isNew;
 	}
 
-	public static UserAuthResponse of(String accessToken, String refreshToken, boolean isNew) {
+	public static UserAuthResponse of(String accessToken, String refreshToken) {
 		return UserAuthResponse.builder()
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
-			.isNew(isNew)
 			.build();
 	}
 }

@@ -2,7 +2,6 @@ package com.prography.zone_2_be.domain.auth.service;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.Optional;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -24,10 +23,12 @@ import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
 import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
 import com.prography.zone_2_be.domain.auth.repository.RefreshTokenRepository;
+import com.prography.zone_2_be.domain.term.agreement.service.TermAgreementService;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
 import com.prography.zone_2_be.global.error.ErrorCode;
+import com.prography.zone_2_be.global.exception.CustomException;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
+	private final TermAgreementService termAgreementService;
+
 	private final UserRepository userRepository;
 	private final AccessTokenRepository accessTokenRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
@@ -53,29 +56,9 @@ public class AuthService {
 		return jwtUtil.generateRefreshToken(user.getUuid());
 	}
 
-	public User createUser(String oauth2Key) {
-		User newUser = User.forRegister(oauth2Key);
-		return userRepository.save(newUser);
-	}
-
 	@Transactional
-	public UserAuthResponse authorize(UserRegisterRequest request, String oauthToken) {
-		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
-		// String oauth2Key = "key";
-
-		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
-
-		boolean isNew = userOpt.map(u -> u.getBirth() == null || u.getGender() == null)
-			.orElse(true);
-
-		User user = userOpt.orElseGet(() -> createUser(oauth2Key));
-
-		Optional<String> accessTokenOpt = accessTokenRepository.findByUuid(user.getUuid());
-		Optional<String> refreshTokenOpt = refreshTokenRepository.findByUuid(user.getUuid());
-
-		if (accessTokenOpt.isPresent() && refreshTokenOpt.isPresent()) {
-			return UserAuthResponse.of(accessTokenOpt.get(), refreshTokenOpt.get(), isNew);
-		}
+	public UserAuthResponse register(UserRegisterRequest request, String oauthToken) {
+		User user = createUser(request, oauthToken);
 
 		String newAccessToken = createAccessToken(user);
 		String newRefreshToken = createRefreshToken(user);
@@ -83,7 +66,22 @@ public class AuthService {
 		accessTokenRepository.save(user.getUuid(), newAccessToken);
 		refreshTokenRepository.save(user.getUuid(), newRefreshToken);
 
-		return UserAuthResponse.of(newAccessToken, newRefreshToken, isNew);
+		termAgreementService.saveAllTermAgreement(user, request.getTermAgreementSaveRequests());
+
+		return UserAuthResponse.of(newAccessToken, newRefreshToken);
+	}
+
+	public User createUser(UserRegisterRequest request, String oauthToken){
+		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
+		// String oauth2Key = "newkey2";
+
+		if (userRepository.existsByOauth2Key(oauth2Key)){
+			throw new CustomException(ErrorCode.ALREADY_USER_EXISTS);
+		}
+
+		User newUser = User.forRegister(request, oauth2Key);
+
+		return userRepository.save(newUser);
 	}
 
 	@Transactional
