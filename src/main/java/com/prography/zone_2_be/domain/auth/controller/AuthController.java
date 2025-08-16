@@ -34,10 +34,13 @@ public class AuthController {
 		return ApiResponse.success(authService.register(request, oauthToken));
 	}
 
-	// @PostMapping("/login")
-	// public ResponseEntity<ApiResponse<UserAuthResponse>> loginUser{
-	//
-	// }
+	@PostMapping("/login")
+	public ResponseEntity<ApiResponse<UserAuthResponse>> loginUser(
+		@Valid @RequestBody UserLoginRequest request,
+		@RequestHeader(value = "authorization", required = true) String oauthToken) {
+
+		return ApiResponse.success(authService.login(request, oauthToken));
+	}
 
 	@PostMapping("/refresh")
 	public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(
