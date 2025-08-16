@@ -75,7 +75,7 @@ public class AuthService {
 
 	public UserAuthResponse login(UserLoginRequest request, String oauthToken){
 		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
-		// String oauth2Key = "newkey5";
+		// String oauth2Key = "not exist key";
 
 		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
 
@@ -101,7 +101,7 @@ public class AuthService {
 
 	public User createUser(UserRegisterRequest request, String oauthToken){
 		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
-		// String oauth2Key = "newkey2";
+		// String oauth2Key = "newkey4";
 
 		if (userRepository.existsByOauth2Key(oauth2Key)){
 			throw new CustomException(ErrorCode.ALREADY_USER_EXISTS);
