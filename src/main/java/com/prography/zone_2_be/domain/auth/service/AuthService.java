@@ -2,6 +2,7 @@ package com.prography.zone_2_be.domain.auth.service;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -18,6 +19,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
+import com.prography.zone_2_be.domain.auth.dto.UserLoginRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserRegisterRequest;
 import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
 import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
@@ -67,6 +69,32 @@ public class AuthService {
 		refreshTokenRepository.save(user.getUuid(), newRefreshToken);
 
 		termAgreementService.saveAllTermAgreement(user, request.getTermAgreementSaveRequests());
+
+		return UserAuthResponse.of(newAccessToken, newRefreshToken);
+	}
+
+	public UserAuthResponse login(UserLoginRequest request, String oauthToken){
+		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
+		// String oauth2Key = "newkey5";
+
+		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
+
+		userOpt.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND, "해당 oauth2Key에 해당하는 사용자가 없습니다."));
+
+		User user = userOpt.get();
+
+		Optional<String> accessTokenOpt = accessTokenRepository.findByUuid(user.getUuid());
+		Optional<String> refreshTokenOpt = refreshTokenRepository.findByUuid(user.getUuid());
+
+		if (accessTokenOpt.isPresent() && refreshTokenOpt.isPresent()) {
+			return UserAuthResponse.of(accessTokenOpt.get(), refreshTokenOpt.get());
+		}
+
+		String newAccessToken = createAccessToken(user);
+		String newRefreshToken = createRefreshToken(user);
+
+		accessTokenRepository.save(user.getUuid(), newAccessToken);
+		refreshTokenRepository.save(user.getUuid(), newRefreshToken);
 
 		return UserAuthResponse.of(newAccessToken, newRefreshToken);
 	}
