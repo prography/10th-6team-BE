@@ -79,7 +79,9 @@ public class AuthService {
 
 		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
 
-		userOpt.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND, "해당 oauth2Key에 해당하는 사용자가 없습니다."));
+		if (userOpt.isEmpty()){
+			return UserAuthResponse.asNew(null, null);
+		}
 
 		User user = userOpt.get();
 
