@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.prography.zone_2_be.domain.term.entity.Term;
@@ -32,4 +33,17 @@ public interface TermRepository extends JpaRepository<Term, Long> {
 	List<Term> findLatestTermsGroupedByType();
 
 	List<Term> findAllByTermTypeOrderByCreatedAtDesc(TermType type);
+
+	@Query("""
+		    SELECT t
+		    FROM Term t
+		    WHERE t.termType IN :types
+		      AND t.createdAt = (
+		          SELECT MAX(t2.createdAt)
+		          FROM Term t2
+		          WHERE t2.termType = t.termType
+		      )
+		""")
+	List<Term> findLatestTermsByTypes(@Param("types") List<TermType> types);
+
 }

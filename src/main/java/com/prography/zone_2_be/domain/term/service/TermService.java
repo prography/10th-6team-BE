@@ -8,6 +8,7 @@ import com.prography.zone_2_be.domain.term.dto.TermFindAllResponse;
 import com.prography.zone_2_be.domain.term.dto.TermFindAllVersionResponse;
 import com.prography.zone_2_be.domain.term.dto.TermFindResponse;
 import com.prography.zone_2_be.domain.term.entity.Term;
+import com.prography.zone_2_be.domain.term.entity.TermGroup;
 import com.prography.zone_2_be.domain.term.entity.TermType;
 import com.prography.zone_2_be.domain.term.repository.TermRepository;
 
@@ -36,5 +37,13 @@ public class TermService {
 	public TermFindResponse findTerm(Long termId) {
 		Term term = termRepository.findByIdOrThrow(termId);
 		return TermFindResponse.from(term);
+	}
+
+	public List<TermFindAllResponse> findTermByType(TermGroup termGroup) {
+		List<TermType> types = termGroup.getTerms();
+
+		return termRepository.findLatestTermsByTypes(types).stream()
+			.map(TermFindAllResponse::from)
+			.toList();
 	}
 }
