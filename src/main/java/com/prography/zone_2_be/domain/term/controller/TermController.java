@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.prography.zone_2_be.domain.term.dto.TermFindAllResponse;
 import com.prography.zone_2_be.domain.term.dto.TermFindAllVersionResponse;
 import com.prography.zone_2_be.domain.term.dto.TermFindResponse;
+import com.prography.zone_2_be.domain.term.entity.TermGroup;
 import com.prography.zone_2_be.domain.term.entity.TermType;
 import com.prography.zone_2_be.domain.term.service.TermService;
 import com.prography.zone_2_be.global.response.ApiResponse;
@@ -48,6 +49,14 @@ public class TermController {
 		@PathVariable("termId") @Positive(message = "termId는 1 이상의 값이어야 합니다.") Long termId
 	) {
 		TermFindResponse response = termService.findTerm(termId);
+		return ApiResponse.success(response);
+	}
+
+	@GetMapping("/type/{termGroup}")
+	public ResponseEntity<ApiResponse<List<TermFindAllResponse>>> findTermByType(
+		@PathVariable("termGroup") TermGroup termGroup) {
+
+		List<TermFindAllResponse> response = termService.findTermByType(termGroup);
 		return ApiResponse.success(response);
 	}
 }
