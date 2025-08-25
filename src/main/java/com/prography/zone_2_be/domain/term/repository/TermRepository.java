@@ -35,14 +35,14 @@ public interface TermRepository extends JpaRepository<Term, Long> {
 	List<Term> findAllByTermTypeOrderByCreatedAtDesc(TermType type);
 
 	@Query("""
-		    SELECT t
-		    FROM Term t
-		    WHERE t.termType IN :types
-		      AND t.createdAt = (
-		          SELECT MAX(t2.createdAt)
-		          FROM Term t2
-		          WHERE t2.termType = t.termType
-		      )
+		SELECT t
+		FROM Term t
+		WHERE t.termType IN :types
+		  AND t.createdAt = (
+			  SELECT MAX(t2.createdAt)
+			  FROM Term t2
+			  WHERE t2.termType = t.termType
+		  )
 		""")
 	List<Term> findLatestTermsByTypes(@Param("types") List<TermType> types);
 
