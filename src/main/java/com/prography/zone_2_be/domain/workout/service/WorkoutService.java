@@ -26,6 +26,8 @@ import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveRequest;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
 import com.prography.zone_2_be.domain.workout.exception.WorkoutNotFoundException;
 import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
+import com.prography.zone_2_be.global.error.ErrorCode;
+import com.prography.zone_2_be.global.exception.CustomException;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -129,7 +131,11 @@ public class WorkoutService {
 	public void saveWorkout(WorkoutSaveRequest workoutSaveRequest) {
 		User user = JwtUtil.getUser();
 		String uuid = UUID.randomUUID().toString();
-		int fatUsage = getZone2FatUsage(workoutSaveRequest.getKcalUsage()).intValue();
+		int fatUsage = getZone2FatUsage(workoutSaveRequest.getKcalUsage());
+
+		if (fatUsage <= 0) {
+			throw new CustomException(ErrorCode.WORKOUT_REQUIREMENTS_NOT_MET);
+		}
 
 		Workout workout = Workout.of(user, uuid, workoutSaveRequest.getExecTime(), workoutSaveRequest.getKcalUsage(),
 			fatUsage, workoutSaveRequest.getZone2Rate(), workoutSaveRequest.getActivity());
