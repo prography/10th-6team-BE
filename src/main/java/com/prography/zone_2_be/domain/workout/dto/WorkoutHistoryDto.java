@@ -21,6 +21,7 @@ public class WorkoutHistoryDto {
 	private Integer kcalUsage;
 	private Integer fatUsage;
 	private Integer activity;
+	private Long createdAt;
 
 	public static WorkoutHistoryDto from(Workout workout) {
 		return WorkoutHistoryDto.builder()
@@ -29,6 +30,7 @@ public class WorkoutHistoryDto {
 			.kcalUsage(workout.getKcalUsage())
 			.fatUsage(workout.getFatUsage())
 			.activity(workout.getActivity().getValue())
+			.createdAt(workout.getCreatedAt().getEpochSecond())
 			.build();
 
 	}
