@@ -1,21 +1,20 @@
 package com.prography.zone_2_be.domain.workout.dto;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 
 public enum FoodFigure {
-    ALMOND_10(0),
-    PORK_BELLY_STRIP_1(1),
-    RAMEN_1(2),
-    PIZZA_PIECE_2(3),
-    CAKE_PIECE_1(4),
-    CHICKEN_HALF(5),
-    TTEOKBOKKI_AND_FRY(6),
-    BURGER_SET_AND_SHAKE(7),
-    PIZZA_1(8),
-    CHICKEN_1(9),
-    PORK_FEET_AND_BEER_500(10);
+    // 각 음식에 해당하는 실제 지방 소모량(g) 범위를 min, max 값으로 직접 지정합니다.
+    ALMOND_10(0,1, 10),
+    PORK_BELLY_STRIP_1(1,11, 20),
+    RAMEN_1(2, 21, 30),
+    PIZZA_PIECE_2(3,  31, 40),
+    CAKE_PIECE_1(4, 41, 50),
+    CHICKEN_HALF(5, 51, 60),
+    TTEOKBOKKI_AND_FRY(6, 61, 70),
+    BURGER_SET_AND_SHAKE(7, 71, 80),
+    PIZZA_1(8, 81, 90),
+    CHICKEN_1(9, 91, 100),
+    PORK_FEET_AND_BEER_500(10, 101, Integer.MAX_VALUE); // 마지막 값은 최대값으로 설정
 
     @Getter
     private final int value;
@@ -26,12 +25,10 @@ public enum FoodFigure {
     @Getter
     private final int max;
 
-
-    FoodFigure(int value){
-        int interval = 10;
+    FoodFigure(int value, int min, int max) {
         this.value = value;
-        this.min = (value) * interval + 1;
-        this.max = (value+1) *  interval;
+        this.min = min;
+        this.max = max;
     }
 
     public static FoodFigure matchFatUsageAndFoodFigure(int fatUsage) {
