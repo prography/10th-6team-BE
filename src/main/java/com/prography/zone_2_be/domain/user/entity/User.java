@@ -131,8 +131,14 @@ public class User extends BaseEntity implements UserDetails {
 	}
 
 	public void updateUserInfo(UserUpdateRequest dto) {
-		this.weight = dto.weight;
-		this.height = dto.height;
+		if (dto.weight != null) {
+			this.weight = dto.weight;
+		}
+
+		if (dto.height != null) {
+			this.height = dto.height;
+		}
+
 		this.birth = dto.birth;
 		this.gender = dto.gender;
 	}

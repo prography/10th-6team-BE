@@ -11,9 +11,7 @@ public class UserUpdateRequest {
 	@NotNull(message = "생년월일은 필수입니다.") // null이 아니어야 함
 	@Past(message = "생년월일은 미래의 날짜일 수 없습니다.")
 	public LocalDate birth;
-	@NotNull
 	public Integer height;
-	@NotNull
 	public Integer weight;
 	@NotNull
 	public Gender gender;
