@@ -2,6 +2,7 @@ package com.prography.zone_2_be.domain.customerinquiry.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -33,11 +34,11 @@ class CustomerInquiryRepositoryTest {
 			.toList();
 
 		for (int i = 0; i < pinned.size() - 1; i++) {
-			Long current = pinned.get(i).getCreatedAt();
-			Long next = pinned.get(i + 1).getCreatedAt();
+			Instant current = pinned.get(i).getCreatedAt();
+			Instant next = pinned.get(i + 1).getCreatedAt();
 			assertThat(current)
 				.as("Pinned 그룹 내에서 createdAt 내림차순이 유지되어야 한다")
-				.isGreaterThanOrEqualTo(next);
+				.isAfterOrEqualTo(next);
 		}
 	}
 
@@ -53,11 +54,11 @@ class CustomerInquiryRepositoryTest {
 			.toList();
 
 		for (int i = 0; i < normal.size() - 1; i++) {
-			Long current = normal.get(i).getCreatedAt();
-			Long next = normal.get(i + 1).getCreatedAt();
+			Instant current = normal.get(i).getCreatedAt();
+			Instant next = normal.get(i + 1).getCreatedAt();
 			assertThat(current)
 				.as("Normal 그룹 내에서 createdAt 내림차순이 유지되어야 한다")
-				.isGreaterThanOrEqualTo(next);
+				.isAfterOrEqualTo(next);
 		}
 	}
 

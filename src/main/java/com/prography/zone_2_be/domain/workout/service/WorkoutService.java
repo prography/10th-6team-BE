@@ -43,11 +43,11 @@ public class WorkoutService {
 	}
 
 	private Integer getZone2FatUsage(Integer kcalUsage) {
-		return (int) (kcalUsage * 0.65) / 9;
+		return (int)(kcalUsage * 0.65) / 9;
 	}
 
 	private Integer getZone4FatUsage(Integer kcalUsage) {
-		return (int) (kcalUsage * 1.5 * 0.15) / 9;
+		return (int)(kcalUsage * 1.5 * 0.15) / 9;
 	}
 
 	public WorkoutGetFatUsageResponse getFatUsage(Integer kcalUsage) {
@@ -94,8 +94,8 @@ public class WorkoutService {
 		// 3. 두 결과를 최종 WorkoutGetHistoryResponse DTO에 담아 반환
 		return new WorkoutGetHistoryResponse(
 			total.getExecTimeSum(),
-			total.getFatUsageSum(),
 			total.getKcalUsageSum(),
+			total.getFatUsageSum(),
 			histories
 		);
 
@@ -123,7 +123,8 @@ public class WorkoutService {
 		Workout workout = workoutRepository.findByUuid(uuid)
 			.orElseThrow(WorkoutNotFoundException::new);
 
-		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()), getZone2FatUsage(workout.getKcalUsage()), getZone4FatUsage(workout.getKcalUsage()),
+		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()),
+			getZone2FatUsage(workout.getKcalUsage()), getZone4FatUsage(workout.getKcalUsage()),
 			FoodFigure.matchFatUsageAndFoodFigure(workout.getFatUsage()));
 	}
 
