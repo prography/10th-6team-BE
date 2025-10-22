@@ -1,27 +1,33 @@
 package com.prography.zone_2_be.domain.workout;
 
-import java.time.Instant;
+import static org.assertj.core.api.Assertions.*;
+
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutGetHistoryResponse;
 import com.prography.zone_2_be.domain.workout.entity.Activity;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
 import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
+import com.prography.zone_2_be.domain.workout.service.WorkoutService;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 
 @SpringBootTest
-@ActiveProfiles("test")
+// @ActiveProfiles("main")
 public class WorkoutServiceTest {
 
 	@Autowired
@@ -29,6 +35,9 @@ public class WorkoutServiceTest {
 
 	@Autowired
 	private WorkoutRepository workoutRepository;
+
+	@Autowired
+	private WorkoutService workoutService;
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -48,8 +57,40 @@ public class WorkoutServiceTest {
 	public void createDummyDataWithJWT() {
 		String token = "eyJhbGciOiJIUzM4NCJ9.eyJqdGkiOiIxYTQ5OThhOS03YjczLTRhOTItYjkyOC1kZmZiMTMyYWQ5MjUiLCJzdWIiOiJrZXkiLCJpYXQiOjE3NTI5OTUyNzQsImV4cCI6MTc1Mjk5ODg3NH0.7-696ZgV6x_Dr3MVlmDL1398x11XaxHimf3RiPQNp5nYKuHXvBHKQNKbU3aSrzEn";
 
-		createDummyData(jwtUtil.getOAuth2Key(token));
+		// createDummyData(jwtUtil.getOAuth2Key(token));
 
+	}
+
+	@Test
+	@DisplayName("운동 기록 조회 - 정상 케이스")
+	public void getWorkoutHistory_Success() {
+		// Given
+		// 테스트용 사용자 생성 및 저장
+		User testUser = userRepository.findById(1L).orElseThrow();
+
+		// SecurityContext에 인증 정보 설정
+		UsernamePasswordAuthenticationToken authentication =
+			new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		LocalDateTime startDate = LocalDateTime.of(2025, 10, 1, 0, 0, 0);
+		long startTime = startDate.atZone(ZoneId.systemDefault()).toEpochSecond();
+		LocalDateTime endDate = LocalDateTime.of(2025, 10, 21, 0, 0, 0);
+		long endTime = endDate.atZone(ZoneId.systemDefault()).toEpochSecond();
+
+		// When
+		WorkoutGetHistoryResponse response = workoutService.getWorkoutHistory(startTime, endTime, 0, 10);
+
+		// Then
+		assertThat(response).isNotNull();
+		assertThat(response.getHistories()).isNotEmpty();
+		System.out.println("Total Exec Time: " + response.getTotalExecTime());
+		System.out.println("Total Kcal Usage: " + response.getTotalKcalUsage());
+		System.out.println("Total Fat Usage: " + response.getTotalZone2FatUsage());
+		System.out.println("Histories Size: " + response.getHistories().size());
+
+		// SecurityContext 정리
+		SecurityContextHolder.clearContext();
 	}
 
 	public void createDummyData(String oauth2Key) {
@@ -93,7 +134,7 @@ public class WorkoutServiceTest {
 			// 2. 해당 범위 내에서 랜덤 long 값을 생성합니다.
 			long randomEpochSecond = ThreadLocalRandom.current().nextLong(startEpochSecond, endEpochSecond);
 
-			workout.setCreatedAt(Instant.ofEpochSecond(randomEpochSecond));
+			// workout.setCreatedAt(Instant.ofEpochSecond(randomEpochSecond));
 			// 7. 생성된 엔티티를 저장합니다.
 			workoutRepository.save(workout);
 		}
