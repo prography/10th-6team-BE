@@ -14,6 +14,7 @@ import com.prography.zone_2_be.domain.workout.dto.WorkoutGetHistoryResponse;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetResultResponse;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveRequest;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveResponse;
 import com.prography.zone_2_be.domain.workout.service.WorkoutService;
 import com.prography.zone_2_be.global.response.ApiResponse;
 
@@ -73,8 +74,9 @@ public class WorkoutController {
 	}
 
 	@PostMapping
-	public ResponseEntity<ApiResponse<Void>> saveWorkout(@RequestBody @Valid WorkoutSaveRequest workoutSaveRequest) {
-		workoutService.saveWorkout(workoutSaveRequest);
-		return ApiResponse.success();
+	public ResponseEntity<ApiResponse<WorkoutSaveResponse>> saveWorkout(
+		@RequestBody @Valid WorkoutSaveRequest workoutSaveRequest) {
+		WorkoutSaveResponse result = workoutService.saveWorkout(workoutSaveRequest);
+		return ApiResponse.success(result);
 	}
 }
