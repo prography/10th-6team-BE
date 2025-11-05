@@ -23,6 +23,7 @@ import com.prography.zone_2_be.domain.workout.dto.WorkoutGetResultResponse;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetZone2Response;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutHistoryDto;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveRequest;
+import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveResponse;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
 import com.prography.zone_2_be.domain.workout.exception.WorkoutNotFoundException;
 import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
@@ -129,7 +130,7 @@ public class WorkoutService {
 	}
 
 	@Transactional
-	public void saveWorkout(WorkoutSaveRequest workoutSaveRequest) {
+	public WorkoutSaveResponse saveWorkout(WorkoutSaveRequest workoutSaveRequest) {
 		User user = JwtUtil.getUser();
 		String uuid = UUID.randomUUID().toString();
 		int fatUsage = getZone2FatUsage(workoutSaveRequest.getKcalUsage());
@@ -142,5 +143,7 @@ public class WorkoutService {
 			fatUsage, workoutSaveRequest.getZone2Rate(), workoutSaveRequest.getActivity());
 
 		workoutRepository.save(workout);
+
+		return WorkoutSaveResponse.from(workout);
 	}
 }
