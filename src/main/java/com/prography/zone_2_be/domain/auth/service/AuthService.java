@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
+import com.prography.zone_2_be.domain.alarm.service.AlarmService;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshRequest;
 import com.prography.zone_2_be.domain.auth.dto.TokenRefreshResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
@@ -40,6 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
+
+	private final AlarmService alarmService;
 	private final TermAgreementService termAgreementService;
 
 	private final UserRepository userRepository;
@@ -62,6 +65,8 @@ public class AuthService {
 	public UserAuthResponse register(UserRegisterRequest request, String oauthToken) {
 		User user = createUser(request, oauthToken);
 
+		alarmService.initializeAlarmByUser(user);
+
 		String newAccessToken = createAccessToken(user);
 		String newRefreshToken = createRefreshToken(user);
 
@@ -73,13 +78,13 @@ public class AuthService {
 		return UserAuthResponse.of(newAccessToken, newRefreshToken);
 	}
 
-	public UserAuthResponse login(UserLoginRequest request, String oauthToken){
+	public UserAuthResponse login(UserLoginRequest request, String oauthToken) {
 		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
 		// String oauth2Key = "not exist key";
 
 		Optional<User> userOpt = userRepository.findByOauth2Key(oauth2Key);
 
-		if (userOpt.isEmpty()){
+		if (userOpt.isEmpty()) {
 			return UserAuthResponse.asNew(null, null);
 		}
 
@@ -101,11 +106,11 @@ public class AuthService {
 		return UserAuthResponse.of(newAccessToken, newRefreshToken);
 	}
 
-	public User createUser(UserRegisterRequest request, String oauthToken){
+	public User createUser(UserRegisterRequest request, String oauthToken) {
 		String oauth2Key = getOauth2Key(request.getRegistrationId(), oauthToken);
 		// String oauth2Key = "newkey4";
 
-		if (userRepository.existsByOauth2Key(oauth2Key)){
+		if (userRepository.existsByOauth2Key(oauth2Key)) {
 			throw new CustomException(ErrorCode.ALREADY_USER_EXISTS);
 		}
 
@@ -123,7 +128,6 @@ public class AuthService {
 		String uuid = jwtUtil.getUuid(refreshToken);
 		User user = userRepository.findByUuid(uuid)
 			.orElseThrow(UserNotFoundException::new);
-
 
 		String newAccessToken = this.createAccessToken(user);
 		String newRefreshToken = this.createRefreshToken(user);
