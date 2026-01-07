@@ -26,7 +26,6 @@ jobs:
       - name: Create application.yml from template
         run: |
           mkdir -p src/main/resources
-          # echo 대신 아래 cat 명령어로 교체하세요!
           cat << 'EOF' > src/main/resources/application.yml
           ${{ secrets.APPLICATION_PROPERTIES }}
           EOF
@@ -125,10 +124,10 @@ jobs:
           body: |
             이 PR은 release/prod 브랜치에 배포된 커밋을 dev 브랜치에 반영하기 위해 자동 생성되었습니다.
 
-      - name: Enable auto-merge (Rebase and merge)
+      - name: Enable auto-merge (Merge commit)
         if: steps.cpr.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-          merge-method: rebase
+          merge-method: merge
