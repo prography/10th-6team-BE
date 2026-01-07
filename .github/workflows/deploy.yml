@@ -1,10 +1,11 @@
 name: CI/CD Deploy To EC2
 
 on:
+  pull_request:
+    branches: [ dev ]
   push:
     branches:
       - dev
-      - release/stage
       - release/prod
 
 permissions:
@@ -16,44 +17,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-push:
-    if: |
-      startsWith(github.ref, 'refs/heads/dev') ||
-      startsWith(github.ref, 'refs/heads/release/')
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install envsubst
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gettext-base
-
-      - name: Generate application.yml from template + secrets
-        env:
-          APPLICATION_YML: ${{ secrets.APPLICATION_PROPERTIES }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          REDIS_USER: ${{ secrets.REDIS_USER }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
-          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
-          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
-          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID }}
-          APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
-          JWT_REFRESH_EXPIRATION: ${{ secrets.JWT_REFRESH_EXPIRATION }}
+      - name: Create application.yml from template
         run: |
           mkdir -p src/main/resources
-          echo "$APPLICATION_YML" | envsubst > src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > src/main/resources/application.yml
 
       - name: Set up Java 17 (Temurin) with Gradle cache
         uses: actions/setup-java@v4
@@ -62,50 +35,25 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Build with Gradle
+      - name: Build
         run: ./gradlew clean build -x test
 
       - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/release/prod' && github.event_name == 'push'
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" \
             | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build & Push Docker image
-        env:
-          BRANCH: ${{ github.ref_name }}
+        if: github.ref == 'refs/heads/release/prod' && github.event_name == 'push'
         run: |
-          TAG="${BRANCH//\//-}"   # ex: release/prod → release-prod
-          IMAGE="${{ secrets.DOCKER_USERNAME }}/zone2be-app:${TAG}"
+          IMAGE="${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-prod"
           docker build -t "${IMAGE}" .
           docker push "${IMAGE}"
 
-  deploy-staging:
-    if: github.ref == 'refs/heads/release/stage'
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    environment: staging
-    steps:
-      - name: Deploy to Staging EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script_stop: true
-          script: |
-            IMAGE=${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-stage
-            docker stop zone2be-app || true
-            docker rm   zone2be-app || true
-            docker pull $IMAGE
-            docker run -d \
-              --name zone2be-app \
-              --network zone2be_network \
-              -p 8080:8080 \
-              $IMAGE
-
   deploy-production:
-    if: github.ref == 'refs/heads/release/prod'
-    needs: build-and-push
+    if: github.ref == 'refs/heads/release/prod' && github.event_name == 'push'
+    needs: ci
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -118,17 +66,42 @@ jobs:
           script_stop: true
           script: |
             IMAGE=${{ secrets.DOCKER_USERNAME }}/zone2be-app:release-prod
+
+            # 기존 컨테이너 중지 및 삭제
             docker stop zone2be-app || true
-            docker rm   zone2be-app || true
+            docker rm zone2be-app || true
+
+            # 새 이미지 Pull
             docker pull $IMAGE
+
+            # 환경변수를 런타임에 주입하여 실행
             docker run -d \
               --name zone2be-app \
               --network zone2be_network \
               -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e DB_URL="${{ secrets.DB_URL }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e REDIS_HOST="${{ secrets.REDIS_HOST }}" \
+              -e REDIS_PORT="${{ secrets.REDIS_PORT }}" \
+              -e REDIS_USER="${{ secrets.REDIS_USER }}" \
+              -e REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" \
+              -e KAKAO_CLIENT_ID="${{ secrets.KAKAO_CLIENT_ID }}" \
+              -e KAKAO_CLIENT_SECRET="${{ secrets.KAKAO_CLIENT_SECRET }}" \
+              -e NAVER_CLIENT_ID="${{ secrets.NAVER_CLIENT_ID }}" \
+              -e NAVER_CLIENT_SECRET="${{ secrets.NAVER_CLIENT_SECRET }}" \
+              -e GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+              -e GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+              -e APPLE_CLIENT_ID="${{ secrets.APPLE_CLIENT_ID }}" \
+              -e APPLE_CLIENT_SECRET="${{ secrets.APPLE_CLIENT_SECRET }}" \
+              -e JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
+              -e JWT_EXPIRATION="${{ secrets.JWT_EXPIRATION }}" \
+              -e JWT_REFRESH_EXPIRATION="${{ secrets.JWT_REFRESH_EXPIRATION }}" \
               $IMAGE
 
   post-sync:
-    if: github.ref == 'refs/heads/release/prod'
+    if: github.ref == 'refs/heads/release/prod' && github.event_name == 'push'
     needs: deploy-production
     runs-on: ubuntu-latest
     steps:
