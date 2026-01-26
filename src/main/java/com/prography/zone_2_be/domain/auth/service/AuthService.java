@@ -27,6 +27,7 @@ import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
 import com.prography.zone_2_be.domain.auth.repository.RefreshTokenRepository;
 import com.prography.zone_2_be.domain.term.agreement.service.TermAgreementService;
+import com.prography.zone_2_be.domain.user.device.service.UserDeviceService;
 import com.prography.zone_2_be.domain.user.entity.Provider;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
@@ -45,6 +46,7 @@ public class AuthService {
 
 	private final AlarmService alarmService;
 	private final TermAgreementService termAgreementService;
+	private final UserDeviceService userDeviceService;
 
 	private final UserRepository userRepository;
 	private final AccessTokenRepository accessTokenRepository;
@@ -66,6 +68,7 @@ public class AuthService {
 	public UserAuthResponse register(UserRegisterRequest request, String oauthToken) {
 		User user = createUser(request, oauthToken);
 
+		userDeviceService.save(user, request.getUserDeviceSaveRequest());
 		alarmService.initializeAlarmByUser(user);
 
 		String newAccessToken = createAccessToken(user);
