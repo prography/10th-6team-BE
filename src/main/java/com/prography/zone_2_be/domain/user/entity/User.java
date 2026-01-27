@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +32,11 @@ import lombok.Setter;
 @SQLDelete(sql = "UPDATE user SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class User extends BaseEntity implements UserDetails {
+
+	@Column(updatable = false)
+	@Enumerated(EnumType.STRING)
+	private Provider provider;
+
 	@Column(nullable = false, updatable = false)
 	private String oauth2Key;
 
@@ -102,7 +106,9 @@ public class User extends BaseEntity implements UserDetails {
 	}
 
 	@Builder
-	public User(String oauth2Key, String uuid, Role role, LocalDate birth, Gender gender, Integer height, Integer weight) {
+	public User(Provider provider, String oauth2Key, String uuid, Role role, LocalDate birth, Gender gender,
+		Integer height, Integer weight) {
+		this.provider = provider;  // 추가
 		this.oauth2Key = oauth2Key;
 		this.role = role;// Default role is User
 		this.uuid = uuid;
@@ -118,9 +124,10 @@ public class User extends BaseEntity implements UserDetails {
 		}
 	}
 
-	public static User forRegister(UserRegisterRequest dto, String oauth2Key) {
+	public static User forRegister(UserRegisterRequest dto, String oauth2Key, Provider provider) {
 		return User.builder()
 			.oauth2Key(oauth2Key)
+			.provider(provider)
 			.role(Role.User) // Default role is User
 			.uuid(UUID.randomUUID().toString())
 			.birth(dto.birth)

@@ -27,6 +27,8 @@ import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
 import com.prography.zone_2_be.domain.auth.repository.RefreshTokenRepository;
 import com.prography.zone_2_be.domain.term.agreement.service.TermAgreementService;
+import com.prography.zone_2_be.domain.user.device.service.UserDeviceService;
+import com.prography.zone_2_be.domain.user.entity.Provider;
 import com.prography.zone_2_be.domain.user.entity.User;
 import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
@@ -44,6 +46,7 @@ public class AuthService {
 
 	private final AlarmService alarmService;
 	private final TermAgreementService termAgreementService;
+	private final UserDeviceService userDeviceService;
 
 	private final UserRepository userRepository;
 	private final AccessTokenRepository accessTokenRepository;
@@ -65,6 +68,7 @@ public class AuthService {
 	public UserAuthResponse register(UserRegisterRequest request, String oauthToken) {
 		User user = createUser(request, oauthToken);
 
+		userDeviceService.save(user, request.getUserDeviceSaveRequest());
 		alarmService.initializeAlarmByUser(user);
 
 		String newAccessToken = createAccessToken(user);
@@ -114,7 +118,7 @@ public class AuthService {
 			throw new CustomException(ErrorCode.ALREADY_USER_EXISTS);
 		}
 
-		User newUser = User.forRegister(request, oauth2Key);
+		User newUser = User.forRegister(request, oauth2Key, Provider.from(request.getRegistrationId()));
 
 		return userRepository.save(newUser);
 	}
@@ -160,12 +164,13 @@ public class AuthService {
 
 		ClientRegistration registration =
 			clientRegistrationRepository.findByRegistrationId(registrationId);
+
 		if (registration == null) {
 			throw new IllegalArgumentException("Unknown OAuth provider: " + registrationId);
 		}
 
 		//TODO: 리팩 토링
-		if ("apple".equals(registrationId)) {
+		if (Provider.APPLE.getRegistrationId().equals(registrationId)) {
 			try {
 				JWTClaimsSet claims = JWTParser.parse(accessToken).getJWTClaimsSet();
 				return claims.getSubject();
