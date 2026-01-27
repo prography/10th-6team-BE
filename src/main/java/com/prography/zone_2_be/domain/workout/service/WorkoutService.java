@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.prography.zone_2_be.domain.user.entity.User;
-import com.prography.zone_2_be.domain.user.repository.UserRepository;
 import com.prography.zone_2_be.domain.workout.dto.FoodFigure;
 import com.prography.zone_2_be.domain.workout.dto.IWorkoutTotalDto;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutGetFatUsageResponse;
@@ -36,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkoutService {
 	private final WorkoutRepository workoutRepository;
-	private final UserRepository userRepository;
 
 	private Integer getRelativeFatUsage(Integer kcalUsage) {
 		return (getZone2FatUsage(kcalUsage) - getZone4FatUsage(kcalUsage));
@@ -52,6 +50,10 @@ public class WorkoutService {
 
 	public WorkoutGetFatUsageResponse getFatUsage(Integer kcalUsage) {
 		return WorkoutGetFatUsageResponse.of(getRelativeFatUsage(kcalUsage));
+	}
+
+	public long countUserWorkouts(User user) {
+		return workoutRepository.countByUser(user);
 	}
 
 	public WorkoutGetHistoryResponse getWorkoutHistory(Long startTime, Long endTime, int page, int size) {
