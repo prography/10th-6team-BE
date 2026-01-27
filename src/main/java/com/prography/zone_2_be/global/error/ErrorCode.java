@@ -37,6 +37,11 @@ public enum ErrorCode {
 	// Alarm 에러 4500번대
 	ALARM_NOT_FOUND(HttpStatus.NOT_FOUND, 4500, "해당 알림 설정을 찾을 수 없습니다."),
 
+	// Survey 에러 4600번대
+	SURVEY_NOT_FOUND(HttpStatus.NOT_FOUND, 4600, "진행 중인 설문조사를 찾을 수 없습니다."),
+	SURVEY_ALREADY_RESPONDED(HttpStatus.BAD_REQUEST, 4601, "이미 참여한 설문조사입니다."),
+	SURVEY_NOT_ELIGIBLE(HttpStatus.BAD_REQUEST, 4602, "설문조사 참여 대상이 아닙니다."),
+
 	// Global Server 에러
 	DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 5000, "서버에서 알 수 없는 오류 발생.");
 
