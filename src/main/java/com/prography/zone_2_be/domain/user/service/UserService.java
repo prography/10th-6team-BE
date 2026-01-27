@@ -1,5 +1,7 @@
 package com.prography.zone_2_be.domain.user.service;
 
+import java.time.Instant;
+
 import org.springframework.stereotype.Service;
 
 import com.prography.zone_2_be.domain.user.dto.UserFindResponse;
@@ -44,5 +46,9 @@ public class UserService {
 		User user = JwtUtil.getUser();
 		userRepository.delete(user);
 		log.info("사용자 {} 삭제됨", user.getUuid());
+	}
+
+	public long countByCreatedAtBetween(Instant start, Instant end) {
+		return userRepository.countByCreatedAtBetween(start, end);
 	}
 }
