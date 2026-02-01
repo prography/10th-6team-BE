@@ -25,7 +25,6 @@ import com.prography.zone_2_be.domain.workout.dto.WorkoutHistoryDto;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveRequest;
 import com.prography.zone_2_be.domain.workout.dto.WorkoutSaveResponse;
 import com.prography.zone_2_be.domain.workout.entity.Workout;
-import com.prography.zone_2_be.domain.workout.exception.WorkoutNotFoundException;
 import com.prography.zone_2_be.domain.workout.repository.WorkoutRepository;
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.exception.CustomException;
@@ -122,7 +121,7 @@ public class WorkoutService {
 
 	public WorkoutGetResultResponse getWorkoutResult(String uuid) {
 		Workout workout = workoutRepository.findByUuid(uuid)
-			.orElseThrow(WorkoutNotFoundException::new);
+			.orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_NOT_FOUND));
 
 		return WorkoutGetResultResponse.from(workout, getRelativeFatUsage(workout.getKcalUsage()),
 			getZone2FatUsage(workout.getKcalUsage()), getZone4FatUsage(workout.getKcalUsage()),

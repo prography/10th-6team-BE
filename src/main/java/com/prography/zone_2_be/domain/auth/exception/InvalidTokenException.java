@@ -1,8 +1,10 @@
 package com.prography.zone_2_be.domain.auth.exception;
 
-import com.prography.zone_2_be.global.error.ErrorCode;
-import lombok.Getter;
 import org.springframework.security.core.AuthenticationException;
+
+import com.prography.zone_2_be.global.error.ErrorCode;
+
+import lombok.Getter;
 
 /**
  * 유효하지 않은 액세스 토큰 예외.

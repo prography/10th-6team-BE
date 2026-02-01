@@ -23,14 +23,12 @@ import com.prography.zone_2_be.domain.auth.dto.UserAuthResponse;
 import com.prography.zone_2_be.domain.auth.dto.UserLoginRequest;
 import com.prography.zone_2_be.domain.auth.dto.UserRegisterRequest;
 import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
-import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.domain.auth.repository.AccessTokenRepository;
 import com.prography.zone_2_be.domain.auth.repository.RefreshTokenRepository;
 import com.prography.zone_2_be.domain.term.agreement.service.TermAgreementService;
 import com.prography.zone_2_be.domain.user.device.service.UserDeviceService;
 import com.prography.zone_2_be.domain.user.entity.Provider;
 import com.prography.zone_2_be.domain.user.entity.User;
-import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.exception.CustomException;
@@ -131,7 +129,7 @@ public class AuthService {
 
 		String uuid = jwtUtil.getUuid(refreshToken);
 		User user = userRepository.findByUuid(uuid)
-			.orElseThrow(UserNotFoundException::new);
+			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
 		String newAccessToken = this.createAccessToken(user);
 		String newRefreshToken = this.createRefreshToken(user);
@@ -194,7 +192,7 @@ public class AuthService {
 
 		} catch (OAuth2AuthenticationException e) {
 			log.error("failed to load oauth2 user: {}", e.getMessage());
-			throw new OAuth2LoadException();
+			throw new CustomException(ErrorCode.LOAD_OAUTH2_USER_FAIL);
 		}
 	}
 
@@ -215,7 +213,7 @@ public class AuthService {
 		}
 
 		// 3. uuid를 사용하여 User 정보를 조회하여 반환
-		return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
+		return userRepository.findByUuid(uuid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 	}
 
 	@Transactional
