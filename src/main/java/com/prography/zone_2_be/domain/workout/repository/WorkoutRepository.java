@@ -39,4 +39,6 @@ public interface WorkoutRepository extends JpaRepository<Workout, Long> {
 		@Param("endTime") Instant endTime);
 
 	Optional<Workout> findByUuid(String uuid);
+
+	long countByUser(User user);
 }

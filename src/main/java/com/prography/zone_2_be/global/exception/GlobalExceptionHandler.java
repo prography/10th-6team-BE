@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.prography.zone_2_be.domain.auth.exception.InvalidTokenException;
-import com.prography.zone_2_be.domain.auth.exception.OAuth2LoadException;
 import com.prography.zone_2_be.global.error.ErrorCode;
 import com.prography.zone_2_be.global.response.ApiResponse;
 

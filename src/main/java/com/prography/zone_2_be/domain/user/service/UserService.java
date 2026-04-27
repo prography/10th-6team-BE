@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 import com.prography.zone_2_be.domain.user.dto.UserFindResponse;
 import com.prography.zone_2_be.domain.user.dto.UserUpdateRequest;
 import com.prography.zone_2_be.domain.user.entity.User;
-import com.prography.zone_2_be.domain.user.exception.UserNotFoundException;
 import com.prography.zone_2_be.domain.user.repository.UserRepository;
+import com.prography.zone_2_be.global.error.ErrorCode;
+import com.prography.zone_2_be.global.exception.CustomException;
 import com.prography.zone_2_be.global.utils.JwtUtil;
 
 import jakarta.transaction.Transactional;
@@ -22,8 +23,8 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final JwtUtil jwtUtil;
 
-	public User findUserByUuid(String uuid) throws UserNotFoundException {
-		return userRepository.findByUuid(uuid).orElseThrow(UserNotFoundException::new);
+	public User findUserByUuid(String uuid) throws CustomException {
+		return userRepository.findByUuid(uuid).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 	}
 
 	public UserFindResponse findUser() {
